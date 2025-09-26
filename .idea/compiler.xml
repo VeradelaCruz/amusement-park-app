@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="api-gateway-park" />
+        <module name="config-server-park" />
+        <module name="eureka-server-park" />
+      </profile>
+      <profile name="Annotation profile for amusement-park-app" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.40/lombok-1.18.40.jar" />
+        </processorPath>
+        <module name="tickets-service" />
+        <module name="employees-service" />
+        <module name="buyer-service" />
+        <module name="games-service" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="api-gateway-park" options="-parameters" />
+      <module name="buyer-service" options="-parameters" />
+      <module name="config-server-park" options="-parameters" />
+      <module name="employees-service" options="-parameters" />
+      <module name="eureka-server-park" options="-parameters" />
+      <module name="games-service" options="-parameters" />
+      <module name="tickets-service" options="-parameters" />
+    </option>
+  </component>
+</project>

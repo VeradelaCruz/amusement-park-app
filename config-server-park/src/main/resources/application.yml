@@ -1,0 +1,28 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: config-server-park
+  cloud:
+    config:
+      server:
+        git:
+          uri: file:///C:/Users/maida/OneDrive/Escritorio/Proyectos/amusement-park-app/config-data-park
+          clone-on-start: true
+          default-label: main
+          search-paths:
+            - .
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-service:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

@@ -1,0 +1,22 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.amusement</groupId>
+    <artifactId>amusement-park-app</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>api-gateway-park</module>
+        <module>eureka-server-park</module>
+        <module>config-server-park</module>
+        <module>games-service</module>
+        <module>tickets-service</module>
+        <module>employees-service</module>
+        <module>buyer-service</module>
+    </modules>
+
+</project>
