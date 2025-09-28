@@ -20,6 +20,10 @@ public class EmployeeService {
     @Autowired
     private GameClient gameClient;
 
+    public Employee createEmployee(Employee employee){
+        return employeeRepository.save(employee);
+    }
+
     public Employee findById(String id){
         return employeeRepository.findById(id)
                 .orElseThrow(()-> new EmployeeNotFoundException(id));
@@ -30,7 +34,7 @@ public class EmployeeService {
     }
 
     // 🔹 Metodo que devuelve la lista de empleados con su juego asignado
-    public List<EmployeeWithGameDTO> getEmployeesWithGames() {
+    public List<EmployeeWithGameDTO> findEmployeesWithGames() {
         return employeeRepository.findAll().stream()
 
                 // 1️⃣ Nos quedamos solo con los empleados que tienen un juego asignado
