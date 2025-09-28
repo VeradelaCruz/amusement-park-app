@@ -14,7 +14,7 @@ public class Game {
     @Id
     private String gameId;
     @NotEmpty(message = "Name can not be empty")
-    private String name;
+    private String gameName;
     private int duration;
     private List<LocalTime> startTime;
     private List<LocalTime> endTime;
@@ -28,12 +28,12 @@ public class Game {
         this.gameId = gameId;
     }
 
-    public String getName() {
-        return name;
+    public String getNameGame() {
+        return gameName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setNameGame(String nameGame) {
+        this.gameName = nameGame;
     }
 
     public int getDuration() {
