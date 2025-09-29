@@ -1,18 +1,20 @@
-package com.example.tickets_service.models;
+package com.example.tickets_service.dtos;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import org.springframework.data.mongodb.core.mapping.Document;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 @Data
-@Document(collection = "tickets")
-public class Ticket {
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class TicketDTO {
     private String ticketId;
     private String gameId;
-    private String buyerId;
     private LocalDate date;
     private LocalTime time;
     private double price;
-
 }

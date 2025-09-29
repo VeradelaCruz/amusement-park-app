@@ -25,4 +25,5 @@ public class GameService {
     public List<Game> findAll(){
         return gameRepository.findAll();
     }
+
 }

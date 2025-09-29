@@ -11,22 +11,14 @@ import java.util.List;
 @Data
 @Document(collection = "games")
 public class Game {
+    //Getters and setters
     @Id
     private String gameId;
     @NotEmpty(message = "Name can not be empty")
     private String gameName;
     private int duration;
-    private List<LocalTime> startTime;
-    private List<LocalTime> endTime;
-
-    //Getters and setters
-    public String getGameId() {
-        return gameId;
-    }
-
-    public void setGameId(String gameId) {
-        this.gameId = gameId;
-    }
+    private LocalTime startTime;
+    private LocalTime endTime;
 
     public String getNameGame() {
         return gameName;
@@ -34,30 +26,6 @@ public class Game {
 
     public void setNameGame(String nameGame) {
         this.gameName = nameGame;
-    }
-
-    public int getDuration() {
-        return duration;
-    }
-
-    public void setDuration(int duration) {
-        this.duration = duration;
-    }
-
-    public List<LocalTime> getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(List<LocalTime> startTime) {
-        this.startTime = startTime;
-    }
-
-    public List<LocalTime> getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(List<LocalTime> endTime) {
-        this.endTime = endTime;
     }
 
 }
