@@ -6,6 +6,8 @@ import com.example.buyer_service.repository.BuyerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class BuyerService {
     @Autowired
@@ -19,5 +21,9 @@ public class BuyerService {
     public Buyer findById(String buyerId){
         return buyerRepository.findById(buyerId)
                 .orElseThrow(()-> new BuyerNotFoundException(buyerId));
+    }
+
+    public List<Buyer> findAll(){
+        return buyerRepository.findAll();
     }
 }
