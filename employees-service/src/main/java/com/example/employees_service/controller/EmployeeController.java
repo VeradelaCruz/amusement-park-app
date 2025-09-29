@@ -1,5 +1,6 @@
 package com.example.employees_service.controller;
 
+import com.example.employees_service.dtos.EmployeeDTO;
 import com.example.employees_service.dtos.EmployeeWithGameDTO;
 import com.example.employees_service.models.Employee;
 import com.example.employees_service.service.EmployeeService;
@@ -38,6 +39,16 @@ public class EmployeeController {
         return ResponseEntity.ok().body("Employee removed successfully");
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<EmployeeDTO> updateEmployee(
+            @PathVariable String id,
+            @RequestBody EmployeeDTO employeeDTO) {
+
+        EmployeeDTO updated = employeeService.updateEmployee(id, employeeDTO);
+        return ResponseEntity.ok(updated);
+    }
+
+    
     @GetMapping("/with-games")
     public List<EmployeeWithGameDTO> getEmployeesWithGames() {
         return employeeService.findEmployeesWithGames();

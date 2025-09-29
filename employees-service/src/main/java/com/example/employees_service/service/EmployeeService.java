@@ -1,9 +1,11 @@
 package com.example.employees_service.service;
 
 import com.example.employees_service.client.GameClient;
+import com.example.employees_service.dtos.EmployeeDTO;
 import com.example.employees_service.dtos.EmployeeWithGameDTO;
 import com.example.employees_service.dtos.GameDTO;
 import com.example.employees_service.exception.EmployeeNotFoundException;
+import com.example.employees_service.mapper.EmployeeMapper;
 import com.example.employees_service.models.Employee;
 import com.example.employees_service.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,9 @@ public class EmployeeService {
 
     @Autowired
     private GameClient gameClient;
+
+    @Autowired
+    private EmployeeMapper employeeMapper;
 
     //CRUD OPERATIONS:
     public Employee createEmployee(Employee employee){
@@ -36,6 +41,20 @@ public class EmployeeService {
 
     public void removeEmployee(String id){
         employeeRepository.deleteById(id);
+    }
+
+    public EmployeeDTO updateEmployee(String id, EmployeeDTO employeeDTO) {
+        // 1️⃣ Buscar el empleado existente en la base
+        Employee existing = findById(id);
+
+        // 2️⃣ Actualizar solo los campos no nulos del DTO
+        employeeMapper.updateFromDTO(employeeDTO, existing);
+
+        // 3️⃣ Guardar los cambios
+        Employee saved = employeeRepository.save(existing);
+
+        // 4️⃣ Devolver el DTO actualizado
+        return employeeMapper.toDTO(saved);
     }
 
     // 🔹 Metodo que devuelve la lista de empleados con su juego asignado
