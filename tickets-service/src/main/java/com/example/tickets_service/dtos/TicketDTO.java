@@ -14,7 +14,10 @@ import java.time.LocalTime;
 public class TicketDTO {
     private String ticketId;
     private String gameId;
+    private String buyerId;
     private LocalDate date;
     private LocalTime time;
     private double price;
+
+    private GameDTO gameDTO;
 }

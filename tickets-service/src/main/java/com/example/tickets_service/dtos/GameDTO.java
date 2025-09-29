@@ -15,7 +15,7 @@ import java.util.List;
 public class GameDTO {
     private String gameId;
     private String nameGame;
-    private int duration;
-    private List<LocalTime> startTime;
-    private List<LocalTime> endTime;
+    private LocalTime startTime;
+    private LocalTime endTime;
+    private Double priceGame;
 }

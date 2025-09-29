@@ -19,6 +19,8 @@ public class Game {
     private int duration;
     private LocalTime startTime;
     private LocalTime endTime;
+    private Double priceGame;
+
 
     public String getNameGame() {
         return gameName;
