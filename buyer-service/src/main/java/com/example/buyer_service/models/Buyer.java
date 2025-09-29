@@ -6,12 +6,16 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Document(collection = "buyer")
 public class Buyer {
+
+    @Id
+    private String buyerId;
 
     @NotBlank(message = "First name cannot be blank")
     private String firstName;
