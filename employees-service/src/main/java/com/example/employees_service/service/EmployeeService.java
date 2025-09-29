@@ -20,6 +20,7 @@ public class EmployeeService {
     @Autowired
     private GameClient gameClient;
 
+    //CRUD OPERATIONS:
     public Employee createEmployee(Employee employee){
         return employeeRepository.save(employee);
     }
@@ -31,6 +32,10 @@ public class EmployeeService {
 
     public List<Employee> findAll(){
         return employeeRepository.findAll();
+    }
+
+    public void removeEmployee(String id){
+        employeeRepository.deleteById(id);
     }
 
     // 🔹 Metodo que devuelve la lista de empleados con su juego asignado

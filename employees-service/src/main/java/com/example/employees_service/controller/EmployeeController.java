@@ -33,6 +33,11 @@ public class EmployeeController {
         return  employeeService.findAll();
     }
 
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteEmployee(@PathVariable String id){
+        return ResponseEntity.ok().body("Employee removed successfully");
+    }
+
     @GetMapping("/with-games")
     public List<EmployeeWithGameDTO> getEmployeesWithGames() {
         return employeeService.findEmployeesWithGames();
