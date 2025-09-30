@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,20 +14,9 @@ import lombok.NoArgsConstructor;
 public class GameDTO {
     private String gameId;
     private String gameName;
+    private int duration;
+    private LocalTime startTime;
+    private LocalTime endTime;
+    private Double priceGame;
 
-    public String getGameId() {
-        return gameId;
-    }
-
-    public void setGameId(String gameId) {
-        this.gameId = gameId;
-    }
-
-    public String getGameName() {
-        return gameName;
-    }
-
-    public void setGameName(String gameName) {
-        this.gameName = gameName;
-    }
 }
