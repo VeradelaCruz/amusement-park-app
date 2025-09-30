@@ -18,7 +18,7 @@ public class EmployeeController {
     @Autowired
     private EmployeeService employeeService;
 
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<Employee> createEmployee(@Valid @RequestBody Employee employee) {
         Employee saved = employeeService.createEmployee(employee);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
