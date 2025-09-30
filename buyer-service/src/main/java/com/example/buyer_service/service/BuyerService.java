@@ -18,7 +18,7 @@ public class BuyerService {
     @Autowired
     private BuyerMapper buyerMapper;
 
-
+    //----CRUD OPERATIONS------
     public Buyer createBuyer(Buyer buyer) {
         return buyerRepository.save(buyer);
     }
