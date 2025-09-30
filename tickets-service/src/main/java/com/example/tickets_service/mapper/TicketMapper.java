@@ -4,6 +4,7 @@ import com.example.tickets_service.dtos.GameDTO;
 import com.example.tickets_service.dtos.TicketDTO;
 import com.example.tickets_service.models.Ticket;
 import org.mapstruct.BeanMapping;
+import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.springframework.stereotype.Component;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Component;
 //Marca la clase como un componente de Spring,
 // lo que permite inyectarla en otros servicios usando @Autowired.
 //Así no tenés que crear una instancia manualmente, Spring se encarga de manejarla.
-@Component
+@Mapper(componentModel = "spring")
 public interface TicketMapper {
     // MapStruct se encarga de mapear los atributos con el mismo nombre
     TicketDTO toDTO(Ticket ticket);

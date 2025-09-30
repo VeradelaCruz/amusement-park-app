@@ -11,7 +11,6 @@ import java.util.List;
 @Data
 @Document(collection = "games")
 public class Game {
-    //Getters and setters
     @Id
     private String gameId;
     @NotEmpty(message = "Name can not be empty")

@@ -18,7 +18,7 @@ public class GameController {
     @Autowired
     private GameService gameService;
 
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<Game> addGame(@Valid @RequestBody Game game){
         Game saved= gameService.createGame(game);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
