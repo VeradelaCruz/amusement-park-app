@@ -25,7 +25,7 @@ public class EmployeeService {
     @Autowired
     private EmployeeMapper employeeMapper;
 
-    //CRUD OPERATIONS:
+    //-----------CRUD OPERATIONS------------
     public Employee createEmployee(Employee employee){
         return employeeRepository.save(employee);
     }
@@ -57,6 +57,8 @@ public class EmployeeService {
         return employeeMapper.toDTO(saved);
     }
 
+
+    //------ OTHER OPERATIONS----------
     // 🔹 Metodo que devuelve la lista de empleados con su juego asignado
     public List<EmployeeWithGameDTO> findEmployeesWithGames() {
         return employeeRepository.findAll().stream()

@@ -1,5 +1,6 @@
 package com.example.games_service.controller;
 
+import com.example.games_service.dtos.GameDTO;
 import com.example.games_service.models.Game;
 import com.example.games_service.service.GameService;
 import jakarta.validation.Valid;
@@ -23,7 +24,7 @@ public class GameController {
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{gameId}")
     public Game getById(@PathVariable String gameId){
         return gameService.findById(gameId);
     }
@@ -32,4 +33,20 @@ public class GameController {
     public List<Game> getAll(){
         return gameService.findAll();
     }
+
+    @DeleteMapping("/delete/{gameId}")
+    public ResponseEntity<?> deleteGame(@PathVariable String gameId){
+        gameService.removeById(gameId);
+        return ResponseEntity.ok("Game removed successfully");
+    }
+
+    @PostMapping("/update/{gameId}")
+    public ResponseEntity<GameDTO> updateGame(
+            @PathVariable String gameId,
+            @RequestBody GameDTO gameDTO){
+        GameDTO updated= gameService.changeGame(gameId, gameDTO);
+        return ResponseEntity.ok(updated);
+    }
+
+
 }
