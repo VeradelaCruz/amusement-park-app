@@ -40,7 +40,7 @@ public class GameController {
         return ResponseEntity.ok("Game removed successfully");
     }
 
-    @PostMapping("/update/{gameId}")
+    @PutMapping("/update/{gameId}")
     public ResponseEntity<GameDTO> updateGame(
             @PathVariable String gameId,
             @RequestBody GameDTO gameDTO){

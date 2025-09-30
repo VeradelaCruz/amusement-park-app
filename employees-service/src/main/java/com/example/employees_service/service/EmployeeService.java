@@ -40,7 +40,8 @@ public class EmployeeService {
     }
 
     public void removeEmployee(String id){
-        employeeRepository.deleteById(id);
+        Employee employee= findById(id);
+        employeeRepository.deleteById(employee.getId());
     }
 
     public EmployeeDTO updateEmployee(String id, EmployeeDTO employeeDTO) {

@@ -65,10 +65,16 @@ public class TicketService {
 
     public void removeTicket(String ticketId){
         Ticket ticket= findById(ticketId);
-        ticketRepository.deleteById(ticketId);
+        ticketRepository.deleteById(ticket.getTicketId());
     }
 
-    public
+    public TicketDTO changeTicket(String ticketId, TicketDTO ticketDTO){
+        Ticket existing = findById(ticketId);
+        ticketMapper.updateFromDTO(ticketDTO, existing);
+        Ticket saved= ticketRepository.save(existing);
+
+        return ticketMapper.toDTO(saved);
+    }
 
 
 }

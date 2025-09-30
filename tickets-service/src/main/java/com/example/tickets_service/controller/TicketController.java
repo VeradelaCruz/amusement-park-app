@@ -35,4 +35,12 @@ public class TicketController {
         ticketService.removeTicket(ticketId);
         return ResponseEntity.ok("Ticket removed successfully");
     }
+
+    @PutMapping("/update/{ticketId}")
+    public ResponseEntity<?> updateTicket(
+            @PathVariable String ticketId,
+            @RequestBody TicketDTO ticketDTO){
+        TicketDTO updated= ticketService.changeTicket(ticketId, ticketDTO);
+        return ResponseEntity.ok(updated);
+    }
 }

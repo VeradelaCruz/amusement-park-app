@@ -34,7 +34,8 @@ public class GameService {
     }
 
     public void removeById(String gameId){
-        gameRepository.deleteById(gameId);
+        Game game= findById(gameId);
+        gameRepository.deleteById(game.getGameId());
     }
 
     public GameDTO changeGame(String gameId, GameDTO gameDTO){
