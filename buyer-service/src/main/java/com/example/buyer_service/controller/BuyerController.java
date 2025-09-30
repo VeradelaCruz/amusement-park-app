@@ -1,5 +1,6 @@
 package com.example.buyer_service.controller;
 
+import com.example.buyer_service.dtos.BuyerDTO;
 import com.example.buyer_service.models.Buyer;
 import com.example.buyer_service.service.BuyerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,5 +26,19 @@ public class BuyerController {
     @GetMapping("/all")
     public ResponseEntity<?> getAll(){
         return ResponseEntity.ok(buyerService.findAll());
+    }
+
+    @DeleteMapping("/delete/{buyerId}")
+    public ResponseEntity<?> deleteBuyer(@PathVariable String buyerId){
+        buyerService.removeBuyer(buyerId);
+        return ResponseEntity.ok().body("Buyer removed successfully");
+    }
+
+    @PostMapping("/update/{buyerId}")
+    public ResponseEntity<?> updateBuyer(
+            @PathVariable String buyerId,
+            @RequestBody BuyerDTO buyerDTO){
+        BuyerDTO updated= buyerService.changeBuyer(buyerId, buyerDTO);
+        return ResponseEntity.ok(updated);
     }
 }
