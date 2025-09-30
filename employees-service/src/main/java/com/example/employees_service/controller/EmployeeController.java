@@ -40,7 +40,7 @@ public class EmployeeController {
         return ResponseEntity.ok().body("Employee removed successfully");
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<EmployeeDTO> updateEmployee(
             @PathVariable String id,
             @RequestBody EmployeeDTO employeeDTO) {
