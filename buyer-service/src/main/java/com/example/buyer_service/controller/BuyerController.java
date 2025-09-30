@@ -34,7 +34,7 @@ public class BuyerController {
         return ResponseEntity.ok().body("Buyer removed successfully");
     }
 
-    @PostMapping("/update/{buyerId}")
+    @PutMapping("/update/{buyerId}")
     public ResponseEntity<?> updateBuyer(
             @PathVariable String buyerId,
             @RequestBody BuyerDTO buyerDTO){
