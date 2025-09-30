@@ -29,4 +29,10 @@ public class TicketController {
         TicketDTO ticketDTO = ticketService.sellTicket(gameId, buyerId);
         return ResponseEntity.ok(ticketDTO);
     }
+
+    @DeleteMapping("/delete/{ticketId}")
+    public ResponseEntity<?> deleteTicket(@PathVariable String ticketId){
+        ticketService.removeTicket(ticketId);
+        return ResponseEntity.ok("Ticket removed successfully");
+    }
 }

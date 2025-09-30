@@ -26,6 +26,8 @@ public class TicketService {
     @Autowired
     private TicketMapper ticketMapper;
 
+    //-----CRUD OPERATIONS ------
+
     public Ticket findById(String ticketId){
         return ticketRepository.findById(ticketId)
                 .orElseThrow(()-> new TicketNotFoundException(ticketId));
@@ -37,6 +39,7 @@ public class TicketService {
 
     //Verificar que una entrada va a ser valida para
     // la venta teniendo en cuenta el horario del juego
+    //Crea un ticket en la venta misma
     public TicketDTO sellTicket(String gameId, String buyerId) {
         GameDTO gameDTO = gameClient.getById(gameId);
 
@@ -59,6 +62,13 @@ public class TicketService {
             );
         }
     }
+
+    public void removeTicket(String ticketId){
+        Ticket ticket= findById(ticketId);
+        ticketRepository.deleteById(ticketId);
+    }
+
+    public
 
 
 }
