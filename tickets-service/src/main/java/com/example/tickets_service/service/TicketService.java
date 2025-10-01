@@ -43,8 +43,15 @@ public class TicketService {
     public TicketDTO sellTicket(String gameId, String buyerId) {
         GameDTO gameDTO = gameClient.getById(gameId);
 
+        // 🔹 Validación si no existe el juego
+        if (gameDTO == null) {
+            throw new GameNotAvailableException("Game not found with id: " + gameId);
+        }
+
         LocalTime now = LocalTime.now();
-        if (now.isAfter(gameDTO.getStartTime()) && now.isBefore(gameDTO.getEndTime())) {
+
+        // 🔹 Validar si está dentro del rango [startTime, endTime]
+        if (isGameAvailable(gameDTO, now)) {
             Ticket ticket = new Ticket();
             ticket.setGameId(gameId);
             ticket.setBuyerId(buyerId);
@@ -52,16 +59,22 @@ public class TicketService {
             ticket.setDate(LocalDate.now());
             ticket.setPrice(gameDTO.getPriceGame());
 
-
             Ticket saved = ticketRepository.save(ticket);
 
-            return ticketMapper.toDTO(saved,gameDTO);
+            // 🔹 Mapear ticket + juego
+            return ticketMapper.toDTO(saved, gameDTO);
         } else {
             throw new GameNotAvailableException(
                     "Game: " + gameDTO.getNameGame() + " is not available at this time"
             );
         }
     }
+
+    private boolean isGameAvailable(GameDTO gameDTO, LocalTime now) {
+        return (now.equals(gameDTO.getStartTime()) || now.isAfter(gameDTO.getStartTime())) &&
+                (now.equals(gameDTO.getEndTime())   || now.isBefore(gameDTO.getEndTime()));
+    }
+
 
     public void removeTicket(String ticketId){
         Ticket ticket= findById(ticketId);
