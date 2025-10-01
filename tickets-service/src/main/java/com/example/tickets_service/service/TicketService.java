@@ -64,9 +64,7 @@ public class TicketService {
             // 🔹 Mapear ticket + juego
             return ticketMapper.toDTO(saved, gameDTO);
         } else {
-            throw new GameNotAvailableException(
-                    "Game: " + gameDTO.getNameGame() + " is not available at this time"
-            );
+            throw new GameNotAvailableException(gameDTO.getNameGame());
         }
     }
 
