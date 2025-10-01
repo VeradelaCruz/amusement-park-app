@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(name = "games-service")
 public interface GameClient {
-    @GetMapping("/game/{id}")
+    @GetMapping("/game/{gameId}")
     GameDTO getById(@PathVariable String gameId);
 }
