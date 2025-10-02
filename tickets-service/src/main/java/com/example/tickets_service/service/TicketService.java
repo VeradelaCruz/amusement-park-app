@@ -2,6 +2,7 @@ package com.example.tickets_service.service;
 
 import com.example.tickets_service.client.GameClient;
 import com.example.tickets_service.dtos.GameDTO;
+import com.example.tickets_service.dtos.TicketCountDTO;
 import com.example.tickets_service.dtos.TicketDTO;
 import com.example.tickets_service.exception.GameNotAvailableException;
 import com.example.tickets_service.exception.TicketNotFoundException;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class TicketService {
@@ -85,6 +88,27 @@ public class TicketService {
         Ticket saved= ticketRepository.save(existing);
 
         return ticketMapper.toDTO(saved);
+    }
+
+    //----------OTHER OPERATIONS-------
+    //Cantidad de entradas vendidas en todos los juegos en una fecha
+    public List<TicketCountDTO> ticketAmount(LocalDate date) {
+        // 1️⃣ Filtrar solo tickets de la fecha ingresada
+        List<Ticket> tickets = findAll().stream()
+                .filter(t -> t.getDate().equals(date))
+                .collect(Collectors.toList());
+
+        // 2️⃣ Transformar el Map en una lista de DTOs
+        Map<String, Long> gameAmount = tickets.stream()
+                .collect(Collectors.groupingBy(Ticket::getGameId, Collectors.counting()));
+        //3️⃣ Transformar a DTO y llamar Feign
+        List<TicketCountDTO> result = gameAmount.entrySet().stream()
+                .map(entry -> {
+                    GameDTO gameDTO = gameClient.getById(entry.getKey());
+                    return new TicketCountDTO(entry.getValue(),date, gameDTO);
+                })
+                .collect(Collectors.toList());
+        return result;
     }
 
 
