@@ -2,6 +2,7 @@ package com.example.tickets_service.service;
 
 import com.example.tickets_service.client.GameClient;
 import com.example.tickets_service.dtos.GameDTO;
+import com.example.tickets_service.dtos.SalesTotalDTO;
 import com.example.tickets_service.dtos.TicketCountDTO;
 import com.example.tickets_service.dtos.TicketDTO;
 import com.example.tickets_service.exception.GameNotAvailableException;
@@ -122,6 +123,15 @@ public class TicketService {
         GameDTO gameDTO = gameClient.getById(gameId);
         //Devuelvo el dto asignando el valor total, la fecha y el dto
         return new TicketCountDTO(totalAmount, date, gameDTO);
+    }
+
+    //Sumatoria total de los montos de ventas en un determinado día.
+    public SalesTotalDTO countAllTickets(LocalDate date){
+        double totalAmount = findAll().stream()
+                .filter(ticket -> ticket.getDate().equals(date))
+                .mapToDouble(ticket -> ticket.getPrice())
+                .sum();
+        return new SalesTotalDTO(date,totalAmount);
     }
 
 

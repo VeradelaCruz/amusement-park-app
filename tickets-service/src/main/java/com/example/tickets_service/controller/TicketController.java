@@ -1,5 +1,6 @@
 package com.example.tickets_service.controller;
 
+import com.example.tickets_service.dtos.SalesTotalDTO;
 import com.example.tickets_service.dtos.TicketCountDTO;
 import com.example.tickets_service.dtos.TicketDTO;
 import com.example.tickets_service.service.TicketService;
@@ -65,6 +66,12 @@ public class TicketController {
             ){
         TicketCountDTO result= ticketService.gameTicketAmount(gameId, date );
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/getAllTicketsAmount/{date}")
+    public SalesTotalDTO countAllTicketsAmount(
+            @PathVariable @DateTimeFormat(iso= DateTimeFormat.ISO.DATE) LocalDate date){
+        return ticketService.countAllTickets(date);
     }
 
 
