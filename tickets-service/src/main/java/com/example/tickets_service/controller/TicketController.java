@@ -1,10 +1,15 @@
 package com.example.tickets_service.controller;
 
+import com.example.tickets_service.dtos.TicketCountDTO;
 import com.example.tickets_service.dtos.TicketDTO;
 import com.example.tickets_service.service.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/ticket")
@@ -42,5 +47,13 @@ public class TicketController {
             @RequestBody TicketDTO ticketDTO){
         TicketDTO updated= ticketService.changeTicket(ticketId, ticketDTO);
         return ResponseEntity.ok(updated);
+    }
+
+    @GetMapping("/countTickets/{date}")
+    public ResponseEntity<?> countTickets(
+            //convierte el string de la url en LocalDate
+             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
+        List<TicketCountDTO> result= ticketService.ticketAmount(date);
+        return ResponseEntity.ok(result);
     }
 }
