@@ -111,5 +111,19 @@ public class TicketService {
         return result;
     }
 
+    //Cantidad de entradas vendidas para un determinado juego, en una fecha particular.
+    public TicketCountDTO gameTicketAmount(String gameId, LocalDate date){
+        //Todos los tickets filtrados por el id del juego ingresado
+        // Contar las entradas por cada juego
+        long totalAmount = findAll().stream()
+                .filter(t-> t.getGameId().equals(gameId) && t.getDate().equals(date))
+                .count();
+        //Llamo al microservicio de juegos:
+        GameDTO gameDTO = gameClient.getById(gameId);
+        //Devuelvo el dto asignando el valor total, la fecha y el dto
+        return new TicketCountDTO(totalAmount, date, gameDTO);
+    }
+
+
 
 }
