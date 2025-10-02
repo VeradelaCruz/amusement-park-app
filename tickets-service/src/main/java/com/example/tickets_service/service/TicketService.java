@@ -1,10 +1,7 @@
 package com.example.tickets_service.service;
 
 import com.example.tickets_service.client.GameClient;
-import com.example.tickets_service.dtos.GameDTO;
-import com.example.tickets_service.dtos.SalesTotalDTO;
-import com.example.tickets_service.dtos.TicketCountDTO;
-import com.example.tickets_service.dtos.TicketDTO;
+import com.example.tickets_service.dtos.*;
 import com.example.tickets_service.exception.GameNotAvailableException;
 import com.example.tickets_service.exception.TicketNotFoundException;
 import com.example.tickets_service.mapper.TicketMapper;
@@ -13,8 +10,10 @@ import com.example.tickets_service.repository.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -132,6 +131,23 @@ public class TicketService {
                 .mapToDouble(ticket -> ticket.getPrice())
                 .sum();
         return new SalesTotalDTO(date,totalAmount);
+    }
+
+    //Sumatoria total de los montos de ventas en un determinado mes y año.
+    public SalesTotalMonthYearDTO countByMonthAndYear(int month, int year){
+        try {
+            YearMonth ym = YearMonth.of(year, month);
+        } catch (DateTimeException e) {
+            throw new IllegalArgumentException("Invalid month or year");
+        }
+
+        double totalAmount = findAll().stream()
+                .filter(ticket -> ticket.getDate().getMonthValue() == month &&
+                        ticket.getDate().getYear() == year)
+                //transforma cada elemento del stream en un valor de tipo double
+                .mapToDouble(Ticket::getPrice)
+                .sum();
+        return new SalesTotalMonthYearDTO(month, year, totalAmount);
     }
 
 

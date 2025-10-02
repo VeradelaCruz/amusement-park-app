@@ -1,6 +1,7 @@
 package com.example.tickets_service.controller;
 
 import com.example.tickets_service.dtos.SalesTotalDTO;
+import com.example.tickets_service.dtos.SalesTotalMonthYearDTO;
 import com.example.tickets_service.dtos.TicketCountDTO;
 import com.example.tickets_service.dtos.TicketDTO;
 import com.example.tickets_service.service.TicketService;
@@ -74,5 +75,11 @@ public class TicketController {
         return ticketService.countAllTickets(date);
     }
 
+    @GetMapping("/getTicketsByMonthYear/{month}/{year}")
+    public SalesTotalMonthYearDTO getTicketsByMonthYear(
+            @PathVariable int month,
+            @PathVariable int year){
+        return ticketService.countByMonthAndYear(month, year);
+    }
 
 }
