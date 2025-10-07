@@ -1,5 +1,6 @@
 package com.example.tickets_service.service;
 
+import com.example.tickets_service.client.BuyerClient;
 import com.example.tickets_service.client.GameClient;
 import com.example.tickets_service.dtos.*;
 import com.example.tickets_service.exception.GameNotAvailableException;
@@ -28,6 +29,9 @@ public class TicketService {
 
     @Autowired
     private TicketMapper ticketMapper;
+
+    @Autowired
+    private BuyerClient buyerClient;
 
     //-----CRUD OPERATIONS ------
 
@@ -150,6 +154,45 @@ public class TicketService {
         return new SalesTotalMonthYearDTO(month, year, totalAmount);
     }
 
+        //Comprador que más entradas compró en un determinado mes y año
+        public BuyerWithTicket getTopBuyerWithTicket() {
+            List<Ticket> tickets = ticketRepository.findAll();
+
+            if (tickets.isEmpty()) {
+                return null; // o lanzar excepción si preferís
+            }
+
+            // 1. Agrupamos por buyerId y contamos
+            Map<String, Long> ticketsByBuyer = tickets.stream()
+                    .collect(Collectors.groupingBy(Ticket::getBuyerId, Collectors.counting()));
+
+            // 2. Buscamos el buyer con más tickets
+            //Para poder recorrer sus pares clave-valor, se usa entrySet(),
+            // que devuelve un conjunto (Set) de objetos Map.Entry<K,V>.
+            //Clave (K) = el buyerId.
+            //Valor (V) = la cantidad de tickets (Long).
+            String topBuyerId = ticketsByBuyer.entrySet().stream()
+                    .max(Map.Entry.comparingByValue())
+                    .map(Map.Entry::getKey)
+                    .orElseThrow();
+
+            // 3. Traemos un ticket de ese buyer (ej: el primero)
+            Ticket sampleTicket = tickets.stream()
+                    .filter(t -> t.getBuyerId().equals(topBuyerId))
+                    .findFirst()
+                    .orElseThrow();
+
+            // 4. Llamamos al microservicio de buyers
+            BuyerDTO buyerDTO = buyerClient.getById(topBuyerId);
+
+            // 5. Construimos el DTO final
+            BuyerWithTicket dto = new BuyerWithTicket();
+            dto.setTicketId(sampleTicket.getTicketId());
+            dto.setGameId(sampleTicket.getGameId());
+            dto.setBuyerDTO(buyerDTO);
+
+            return dto;
+        }
 
 
 }
