@@ -1,9 +1,6 @@
 package com.example.tickets_service.controller;
 
-import com.example.tickets_service.dtos.SalesTotalDTO;
-import com.example.tickets_service.dtos.SalesTotalMonthYearDTO;
-import com.example.tickets_service.dtos.TicketCountDTO;
-import com.example.tickets_service.dtos.TicketDTO;
+import com.example.tickets_service.dtos.*;
 import com.example.tickets_service.service.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -80,6 +77,11 @@ public class TicketController {
             @PathVariable int month,
             @PathVariable int year){
         return ticketService.countByMonthAndYear(month, year);
+    }
+
+    @GetMapping("/getBuyerWithTicket")
+    public BuyerWithTicket getBuyerWithTicket(){
+        return ticketService.getTopBuyerWithTicket();
     }
 
 }
