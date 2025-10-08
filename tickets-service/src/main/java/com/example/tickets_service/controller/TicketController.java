@@ -79,9 +79,20 @@ public class TicketController {
         return ticketService.countByMonthAndYear(month, year);
     }
 
-    @GetMapping("/getBuyerWithTicket")
+    @GetMapping("/max-buyer")
     public BuyerWithTicket getBuyerWithTicket(){
         return ticketService.getTopBuyerWithTicket();
+    }
+
+
+    @GetMapping("/max-tickets")
+    public ResponseEntity<GameAmountTickets> getMaxAmountTicket() {
+        return ResponseEntity.ok(ticketService.getTopGameWithTicket());
+    }
+
+    @GetMapping("/avg-price")
+    public List<GameWithAverageDTO> getAverageTicketPricePerGame() {
+        return ticketService.getAverageGame();
     }
 
 }

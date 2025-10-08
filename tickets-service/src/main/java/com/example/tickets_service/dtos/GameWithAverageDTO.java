@@ -9,9 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class GameAmountTickets {
-    private Long amount;
-    private String gameName;
-
+public class GameWithAverageDTO {
+    private String nameGame;
+    private Double average;
 
 }

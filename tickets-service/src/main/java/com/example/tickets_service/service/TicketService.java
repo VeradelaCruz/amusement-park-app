@@ -154,45 +154,93 @@ public class TicketService {
         return new SalesTotalMonthYearDTO(month, year, totalAmount);
     }
 
-        //Comprador que más entradas compró en un determinado mes y año
-        public BuyerWithTicket getTopBuyerWithTicket() {
-            List<Ticket> tickets = ticketRepository.findAll();
+    //Comprador que más entradas compró en un determinado mes y año
+    public BuyerWithTicket getTopBuyerWithTicket() {
+        List<Ticket> tickets = ticketRepository.findAll();
 
-            if (tickets.isEmpty()) {
-                return null; // o lanzar excepción si preferís
-            }
-
-            // 1. Agrupamos por buyerId y contamos
-            Map<String, Long> ticketsByBuyer = tickets.stream()
-                    .collect(Collectors.groupingBy(Ticket::getBuyerId, Collectors.counting()));
-
-            // 2. Buscamos el buyer con más tickets
-            //Para poder recorrer sus pares clave-valor, se usa entrySet(),
-            // que devuelve un conjunto (Set) de objetos Map.Entry<K,V>.
-            //Clave (K) = el buyerId.
-            //Valor (V) = la cantidad de tickets (Long).
-            String topBuyerId = ticketsByBuyer.entrySet().stream()
-                    .max(Map.Entry.comparingByValue())
-                    .map(Map.Entry::getKey)
-                    .orElseThrow();
-
-            // 3. Traemos un ticket de ese buyer (ej: el primero)
-            Ticket sampleTicket = tickets.stream()
-                    .filter(t -> t.getBuyerId().equals(topBuyerId))
-                    .findFirst()
-                    .orElseThrow();
-
-            // 4. Llamamos al microservicio de buyers
-            BuyerDTO buyerDTO = buyerClient.getById(topBuyerId);
-
-            // 5. Construimos el DTO final
-            BuyerWithTicket dto = new BuyerWithTicket();
-            dto.setTicketId(sampleTicket.getTicketId());
-            dto.setGameId(sampleTicket.getGameId());
-            dto.setBuyerDTO(buyerDTO);
-
-            return dto;
+        if (tickets.isEmpty()) {
+            return null; // o lanzar excepción si preferís
         }
+
+        // 1. Agrupamos por buyerId y contamos
+        Map<String, Long> ticketsByBuyer = tickets.stream()
+                .collect(Collectors.groupingBy(Ticket::getBuyerId, Collectors.counting()));
+
+        // 2. Buscamos el buyer con más tickets
+        //Para poder recorrer sus pares clave-valor, se usa entrySet(),
+        // que devuelve un conjunto (Set) de objetos Map.Entry<K,V>.
+        //Clave (K) = el buyerId.
+        //Valor (V) = la cantidad de tickets (Long).
+        String topBuyerId = ticketsByBuyer.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElseThrow();
+
+        // 3. Traemos un ticket de ese buyer (ej: el primero)
+        Ticket sampleTicket = tickets.stream()
+                .filter(t -> t.getBuyerId().equals(topBuyerId))
+                .findFirst()
+                .orElseThrow();
+
+        // 4. Llamamos al microservicio de buyers
+        BuyerDTO buyerDTO = buyerClient.getById(topBuyerId);
+
+        // 5. Construimos el DTO final
+        BuyerWithTicket dto = new BuyerWithTicket();
+        dto.setTicketId(sampleTicket.getTicketId());
+        dto.setGameId(sampleTicket.getGameId());
+        dto.setBuyerDTO(buyerDTO);
+
+        return dto;
+    }
+
+    //Juego con la mayor cantidad de entradas vendidas hasta el día en que
+    // se lleve a cabo la consulta.
+    public GameAmountTickets getTopGameWithTicket() {
+        // Agrupamos por juego y contamos los tickets
+        Map<String, Long> gamesByTickets = findAll().stream()
+                .collect(Collectors.groupingBy(Ticket::getGameId, Collectors.counting()));
+
+        // Buscamos el juego con mayor cantidad de tickets
+        Map.Entry<String, Long> topGameEntry = gamesByTickets.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .orElseThrow(); // lanza excepción si no hay tickets
+
+        String topGameId = topGameEntry.getKey();     // el ID del juego
+        Long topAmount = topGameEntry.getValue();     // cantidad de tickets vendidos
+
+        // Traemos el nombre del juego por Feign
+        GameDTO gameDTO = gameClient.getById(topGameId);
+
+        // Armamos el DTO de respuesta
+        GameAmountTickets dto = new GameAmountTickets();
+        dto.setAmount(topAmount);
+        dto.setGameName(gameDTO.getNameGame());
+
+        return dto;
+    }
+
+    //Promedio de precio de tickets vendidos por juego
+    public List<GameWithAverageDTO> getAverageGame(){
+        Map<String, Double> gamesWithPrices= findAll().stream()
+                .collect(Collectors.groupingBy(Ticket::getGameId,
+                        Collectors.averagingDouble(Ticket::getPrice)));
+
+        return gamesWithPrices.entrySet().stream()
+                .map(entry->
+                {
+                    String id= entry.getKey();
+                    Double average= entry.getValue();
+                    // buscar el nombre del juego con el gameId
+                    GameDTO gameDTO = gameClient.getById(id);
+                    //armar el dto
+                    GameWithAverageDTO dto= new GameWithAverageDTO();
+                    dto.setNameGame(gameDTO.getNameGame());
+                    dto.setAverage(average);
+                    return dto;
+                })
+                .toList();
+    }
 
 
 }
