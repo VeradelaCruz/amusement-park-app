@@ -229,6 +229,7 @@ public class TicketService {
 
     //Promedio de precio de tickets vendidos por juego
     public List<GameWithAverageDTO> getAverageGame(){
+        //Agrupamos gameId y calculamos el precio promedio
         Map<String, Double> gamesWithPrices= findAll().stream()
                 .collect(Collectors.groupingBy(Ticket::getGameId,
                         Collectors.averagingDouble(Ticket::getPrice)));
