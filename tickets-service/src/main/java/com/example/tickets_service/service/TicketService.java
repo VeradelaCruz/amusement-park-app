@@ -159,6 +159,8 @@ public class TicketService {
         return new SalesTotalMonthYearDTO(month, year, totalAmount);
     }
 
+
+    //Comprador maximo
     public BuyerWithTicket getTopBuyerWithTicket() {
         // 1️⃣ Agrupar todos los tickets por buyerId
         Map<String, List<Ticket>> ticketsByBuyer =findAll().stream()
@@ -195,29 +197,34 @@ public class TicketService {
 
 
     //Juego con la mayor cantidad de entradas vendidas hasta el día en que
-    // se lleve a cabo la consulta.
+    // se lleve a cabo la consulta
+    // y cuya suma sea la maxima en caso de igualdad de cantidad.
     public GameAmountTickets getTopGameWithTicket() {
-        // Agrupamos por juego y contamos los tickets
-        Map<String, Long> gamesByTickets = findAll().stream()
-                .collect(Collectors.groupingBy(Ticket::getGameId, Collectors.counting()));
+        // 1️⃣ Agrupar todos los tickets por gameId
+        Map<String, List<Ticket>> gamesByTickets = findAll().stream()
+                .collect(Collectors.groupingBy(Ticket::getGameId));
 
-        // Buscamos el juego con mayor cantidad de tickets
-        Map.Entry<String, Long> topGameEntry = gamesByTickets.entrySet().stream()
-                .max(Map.Entry.comparingByValue())
+        // 2️⃣ Elegir al juego top según cantidad de tickets y, en caso de empate, suma total
+        Map.Entry<String, List<Ticket>> topGameEntry = gamesByTickets.entrySet().stream()
+                .max(Comparator.comparingInt((Map.Entry<String, List<Ticket>> e) -> e.getValue().size()) // cantidad tickets
+                        .thenComparingDouble(e -> e.getValue().stream().mapToDouble(Ticket::getPrice).sum()) // suma total
+                )
                 .orElseThrow(); // lanza excepción si no hay tickets
 
         String topGameId = topGameEntry.getKey();     // el ID del juego
-        Long topAmount = topGameEntry.getValue();     // cantidad de tickets vendidos
+        List<Ticket> topGameTickets = topGameEntry.getValue();  // cantidad de tickets vendidos
+        Double price= topGameTickets.stream().mapToDouble(Ticket::getPrice).sum(); // suma total de los tickets vendidos
 
-        // Traemos el nombre del juego por Feign
+        // 3️⃣ Llamar al microservicio de games
         GameDTO gameDTO = gameClient.getById(topGameId);
 
-        // Armamos el DTO de respuesta
-        GameAmountTickets dto = new GameAmountTickets();
-        dto.setAmount(topAmount);
-        dto.setGameName(gameDTO.getNameGame());
-
-        return dto;
+        // 5️⃣ Construir el DTO final
+        return GameAmountTickets.builder()
+                .gameId(topGameId)
+                .gameName(gameDTO.getNameGame())
+                .amountOfTickets(topGameTickets.stream().count())
+                .totalPrice(price)
+                .build();
     }
 
     //Promedio de precio de tickets vendidos por juego

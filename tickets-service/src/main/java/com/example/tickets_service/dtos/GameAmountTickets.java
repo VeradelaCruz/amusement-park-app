@@ -10,8 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class GameAmountTickets {
-    private Long amount;
+    private String gameId;
     private String gameName;
+    private Long amountOfTickets;
+    private Double totalPrice;
 
 
 }
