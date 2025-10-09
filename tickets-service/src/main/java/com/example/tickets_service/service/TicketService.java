@@ -11,10 +11,8 @@ import com.example.tickets_service.repository.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.DateTimeException;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.YearMonth;
+import java.time.*;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -64,6 +62,7 @@ public class TicketService {
             ticket.setBuyerId(buyerId);
             ticket.setTime(now);
             ticket.setDate(LocalDate.now());
+            ticket.setDate(LocalDate.now(ZoneId.of("UTC"))); // o la zona que uses
             ticket.setPrice(gameDTO.getPriceGame());
 
             Ticket saved = ticketRepository.save(ticket);
@@ -116,26 +115,32 @@ public class TicketService {
     }
 
     //Cantidad de entradas vendidas para un determinado juego, en una fecha particular.
-    public TicketCountDTO gameTicketAmount(String gameId, LocalDate date){
-        //Todos los tickets filtrados por el id del juego ingresado
-        // Contar las entradas por cada juego
+    public TicketCountDTO gameTicketAmount(String gameId, LocalDate date) {
+               // 🔹 Contar tickets que caen dentro del rango
         long totalAmount = findAll().stream()
-                .filter(t-> t.getGameId().equals(gameId) && t.getDate().equals(date))
+                .filter(t -> t.getGameId().equals(gameId))
+                .filter(t -> t.getDate().equals(date))
                 .count();
-        //Llamo al microservicio de juegos:
+
+        // 🔹 Traer info del juego
         GameDTO gameDTO = gameClient.getById(gameId);
-        //Devuelvo el dto asignando el valor total, la fecha y el dto
+
+        // 🔹 Devolver DTO
         return new TicketCountDTO(totalAmount, date, gameDTO);
     }
 
+
     //Sumatoria total de los montos de ventas en un determinado día.
-    public SalesTotalDTO countAllTickets(LocalDate date){
+    public SalesTotalDTO countAllTickets(LocalDate date) {
         double totalAmount = findAll().stream()
-                .filter(ticket -> ticket.getDate().equals(date))
-                .mapToDouble(ticket -> ticket.getPrice())
+                .filter(t -> t.getDate().equals(date))
+                .mapToDouble(Ticket::getPrice)
                 .sum();
-        return new SalesTotalDTO(date,totalAmount);
+
+        return new SalesTotalDTO(date, totalAmount);
     }
+
+
 
     //Sumatoria total de los montos de ventas en un determinado mes y año.
     public SalesTotalMonthYearDTO countByMonthAndYear(int month, int year){
@@ -154,45 +159,40 @@ public class TicketService {
         return new SalesTotalMonthYearDTO(month, year, totalAmount);
     }
 
-    //Comprador que más entradas compró en un determinado mes y año
     public BuyerWithTicket getTopBuyerWithTicket() {
-        List<Ticket> tickets = ticketRepository.findAll();
+        // 1️⃣ Agrupar todos los tickets por buyerId
+        Map<String, List<Ticket>> ticketsByBuyer =findAll().stream()
+                .collect(Collectors.groupingBy(Ticket::getBuyerId));
 
-        if (tickets.isEmpty()) {
-            return null; // o lanzar excepción si preferís
+        if (ticketsByBuyer.isEmpty()) {
+            return null; // o lanzar excepción si no hay tickets
         }
 
-        // 1. Agrupamos por buyerId y contamos
-        Map<String, Long> ticketsByBuyer = tickets.stream()
-                .collect(Collectors.groupingBy(Ticket::getBuyerId, Collectors.counting()));
+        // 2️⃣ Elegir al comprador top según cantidad de tickets y, en caso de empate, suma total
+        Map.Entry<String, List<Ticket>> topBuyerEntry = ticketsByBuyer.entrySet().stream()
+                .max(Comparator.comparingInt((Map.Entry<String, List<Ticket>> e) -> e.getValue().size()) // cantidad tickets
+                        .thenComparingDouble(e -> e.getValue().stream().mapToDouble(Ticket::getPrice).sum()) // suma total
+                )
+                .orElseThrow(); // nunca debería ser vacío si hay tickets
 
-        // 2. Buscamos el buyer con más tickets
-        //Para poder recorrer sus pares clave-valor, se usa entrySet(),
-        // que devuelve un conjunto (Set) de objetos Map.Entry<K,V>.
-        //Clave (K) = el buyerId.
-        //Valor (V) = la cantidad de tickets (Long).
-        String topBuyerId = ticketsByBuyer.entrySet().stream()
-                .max(Map.Entry.comparingByValue())
-                .map(Map.Entry::getKey)
-                .orElseThrow();
+        String topBuyerId = topBuyerEntry.getKey();
+        List<Ticket> topBuyerTickets = topBuyerEntry.getValue();
 
-        // 3. Traemos un ticket de ese buyer (ej: el primero)
-        Ticket sampleTicket = tickets.stream()
-                .filter(t -> t.getBuyerId().equals(topBuyerId))
-                .findFirst()
-                .orElseThrow();
-
-        // 4. Llamamos al microservicio de buyers
+        // 3️⃣ Llamar al microservicio de buyers
         BuyerDTO buyerDTO = buyerClient.getById(topBuyerId);
 
-        // 5. Construimos el DTO final
-        BuyerWithTicket dto = new BuyerWithTicket();
-        dto.setTicketId(sampleTicket.getTicketId());
-        dto.setGameId(sampleTicket.getGameId());
-        dto.setBuyerDTO(buyerDTO);
+        // 4️⃣ Construir lista de GameDTOs para cada ticket
+        List<GameDTO> gameDTOList = topBuyerTickets.stream()
+                .map(ticket -> gameClient.getById(ticket.getGameId()))
+                .toList();
 
-        return dto;
+        // 5️⃣ Construir el DTO final
+        return BuyerWithTicket.builder()
+                .buyerDTO(buyerDTO)
+                .dtoList(gameDTOList)
+                .build();
     }
+
 
     //Juego con la mayor cantidad de entradas vendidas hasta el día en que
     // se lleve a cabo la consulta.

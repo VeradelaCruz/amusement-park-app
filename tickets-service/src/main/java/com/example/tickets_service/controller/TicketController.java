@@ -59,8 +59,8 @@ public class TicketController {
     @GetMapping("/countGameTickets/{gameId}/{date}")
     public ResponseEntity<?> countGameTickets(
             //convierte el string de la url en LocalDate
-            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) String gameId,
-            LocalDate date
+            @PathVariable String gameId,
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
             ){
         TicketCountDTO result= ticketService.gameTicketAmount(gameId, date );
         return ResponseEntity.ok(result);

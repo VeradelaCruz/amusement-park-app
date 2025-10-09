@@ -5,12 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class BuyerWithTicket {
-    private String ticketId;
-    private String gameId;
+    private List<GameDTO> dtoList;
     private BuyerDTO buyerDTO;
 }
