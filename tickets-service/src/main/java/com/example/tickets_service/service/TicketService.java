@@ -250,5 +250,10 @@ public class TicketService {
                 .toList();
     }
 
+    //Encontrar tickets por buyerId
+    public List<Ticket> findByBuyerId(String buyerId){
+        return ticketRepository.findByBuyerId(buyerId);
+    }
+
 
 }

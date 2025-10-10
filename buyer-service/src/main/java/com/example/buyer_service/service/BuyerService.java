@@ -1,6 +1,9 @@
 package com.example.buyer_service.service;
 
+import com.example.buyer_service.client.TicketClient;
 import com.example.buyer_service.dtos.BuyerDTO;
+import com.example.buyer_service.dtos.BuyerWithAmount;
+import com.example.buyer_service.dtos.TicketDTO;
 import com.example.buyer_service.exception.BuyerNotFoundException;
 import com.example.buyer_service.mapper.BuyerMapper;
 import com.example.buyer_service.models.Buyer;
@@ -8,11 +11,7 @@ import com.example.buyer_service.repository.BuyerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 @Service
 public class BuyerService {
@@ -21,6 +20,9 @@ public class BuyerService {
 
     @Autowired
     private BuyerMapper buyerMapper;
+
+    @Autowired
+    private TicketClient ticketClient;
 
     //----CRUD OPERATIONS------
     public Buyer createBuyer(Buyer buyer) {
@@ -51,6 +53,25 @@ public class BuyerService {
     }
 
     //------ OTHER OPERATIONS ---------
+/// Calcular el gasto total de un comprador
+    public BuyerWithAmount findBuyerWithTotalAmount(String buyerId){
+        //Traer el buyer y sus datos:
+        Buyer buyer= findById(buyerId);
+        //Traer todos los tickets del ticket-service:
+        List<TicketDTO> tickets= ticketClient.getByBuyerId(buyerId);
+
+        Double totalPrice = tickets.stream()
+                .mapToDouble(TicketDTO::getPrice)
+                .sum();
+
+        return BuyerWithAmount.builder()
+                .buyerId(buyerId)
+                .firstName(buyer.getFirstName())
+                .lastName(buyer.getLastName())
+                .totalAmountSpent(totalPrice)
+                .build();
+
+    }
 
 
 

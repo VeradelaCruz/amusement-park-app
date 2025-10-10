@@ -1,6 +1,7 @@
 package com.example.buyer_service.controller;
 
 import com.example.buyer_service.dtos.BuyerDTO;
+import com.example.buyer_service.dtos.BuyerWithAmount;
 import com.example.buyer_service.models.Buyer;
 import com.example.buyer_service.service.BuyerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,4 +42,10 @@ public class BuyerController {
         BuyerDTO updated= buyerService.changeBuyer(buyerId, buyerDTO);
         return ResponseEntity.ok(updated);
     }
+
+    @GetMapping("/getBuyerTotalSpent/{buyerId}")
+    public BuyerWithAmount getBuyerTotalSpent(@PathVariable String buyerId) {
+        return buyerService.findBuyerWithTotalAmount(buyerId);
+    }
+
 }

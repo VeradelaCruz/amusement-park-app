@@ -1,3 +1,4 @@
+#Configuracion correcta para que funcione conf-server y lea los archivos yml de los microservicios
 server:
   port: 8888
 

@@ -1,6 +1,7 @@
 package com.example.tickets_service.controller;
 
 import com.example.tickets_service.dtos.*;
+import com.example.tickets_service.models.Ticket;
 import com.example.tickets_service.service.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -16,7 +17,7 @@ public class TicketController {
     @Autowired
     private TicketService ticketService;
 
-    @GetMapping("/{id}")
+    @GetMapping("/{ticketId}")
     public ResponseEntity<?> getById(@PathVariable String ticketId){
         return ResponseEntity.ok(ticketService.findById(ticketId));
     }
@@ -95,4 +96,8 @@ public class TicketController {
         return ticketService.getAverageGame();
     }
 
+    @GetMapping("/getByBuyerId/{buyerId}")
+    public List<Ticket> getByBuyerId(@PathVariable String buyerId){
+        return ticketService.findByBuyerId(buyerId);
+    }
 }
