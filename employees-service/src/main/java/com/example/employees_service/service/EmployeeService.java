@@ -1,9 +1,8 @@
 package com.example.employees_service.service;
 
 import com.example.employees_service.client.GameClient;
-import com.example.employees_service.dtos.EmployeeDTO;
-import com.example.employees_service.dtos.EmployeeWithGameDTO;
-import com.example.employees_service.dtos.GameDTO;
+import com.example.employees_service.client.TicketClient;
+import com.example.employees_service.dtos.*;
 import com.example.employees_service.exception.EmployeeNotFoundException;
 import com.example.employees_service.mapper.EmployeeMapper;
 import com.example.employees_service.models.Employee;
@@ -11,6 +10,7 @@ import com.example.employees_service.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,6 +21,9 @@ public class EmployeeService {
 
     @Autowired
     private GameClient gameClient;
+
+    @Autowired
+    private TicketClient ticketClient;
 
     @Autowired
     private EmployeeMapper employeeMapper;
@@ -60,7 +63,7 @@ public class EmployeeService {
 
 
     //------ OTHER OPERATIONS----------
-    // 🔹 Metodo que devuelve la lista de empleados con su juego asignado
+    // 🔹 Obtener empleados con su juego asignado
     public List<EmployeeWithGameDTO> findEmployeesWithGames() {
         return employeeRepository.findAll().stream()
 
@@ -83,5 +86,29 @@ public class EmployeeService {
                 // 3️⃣ Convertimos el stream en una lista final
                 .collect(Collectors.toList());
     }
+    //🔹Obtener empleados y contar cuántos tickets vendieron
+    public List<EmployeeWithTicketsDTO> findEmployeesWithTickets(){
+        // Traemos todos los tickets de todos los juegos desde ticketService
+        List<TicketDTO> allTickets = ticketClient.getAll(); // suponer que hay un endpoint global
+
+        return employeeRepository.findAll().stream()
+                .map(emp -> {
+                    // Contar tickets que correspondan al gameId del empleado
+                    long count = allTickets.stream()
+                            .filter(ticket -> ticket.getGameId().equals(emp.getGameId()))
+                            .count();
+
+                    return EmployeeWithTicketsDTO.builder()
+                            .id(emp.getId())
+                            .firstName(emp.getFirstName())
+                            .lastName(emp.getLastName())
+                            .gameId(emp.getGameId())
+                            .ticketsSoldInGame(count)
+                            .build();
+                })
+                .sorted(Comparator.comparingLong(EmployeeWithTicketsDTO::getTicketsSoldInGame).reversed())
+                .toList();
+    }
+
 
 }

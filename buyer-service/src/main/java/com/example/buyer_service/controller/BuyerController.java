@@ -51,8 +51,8 @@ public class BuyerController {
         return buyerService.findBuyerWithTotalAmount(buyerId);
     }
 
-    @GetMapping("getBuyersRating")
-    public List<BuyerRankingDTO>  getBuyersRating(){
+    @GetMapping("/getBuyersRanking")
+    public List<BuyerRankingDTO>  getBuyersRanking(){
         return buyerService.getBuyerRanking();
     }
 

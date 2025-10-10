@@ -2,6 +2,7 @@ package com.example.employees_service.controller;
 
 import com.example.employees_service.dtos.EmployeeDTO;
 import com.example.employees_service.dtos.EmployeeWithGameDTO;
+import com.example.employees_service.dtos.EmployeeWithTicketsDTO;
 import com.example.employees_service.models.Employee;
 import com.example.employees_service.service.EmployeeService;
 import jakarta.validation.Valid;
@@ -54,4 +55,10 @@ public class EmployeeController {
     public List<EmployeeWithGameDTO> getEmployeesWithGames() {
         return employeeService.findEmployeesWithGames();
     }
+
+    @GetMapping("/tickets-by-game")
+    public ResponseEntity<List<EmployeeWithTicketsDTO>> getEmployeesTicketsByGame() {
+        return ResponseEntity.ok(employeeService.findEmployeesWithTickets());
+    }
+
 }
