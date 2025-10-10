@@ -8,12 +8,10 @@ spring:
     config:
       server:
         git:
-          uri: file:///C:/Users/maida/OneDrive/Escritorio/Proyectos/amusement-park-app/config-data-park
+          uri: https://github.com/VeradelaCruz/amusement-park-app.git
+          search-paths: config-data-park
           clone-on-start: true
-          default-label: main
-          search-paths:
-            - .
-
+          default-label: master
 eureka:
   client:
     enabled: true
