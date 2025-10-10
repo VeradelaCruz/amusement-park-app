@@ -2,6 +2,7 @@ package com.example.buyer_service.service;
 
 import com.example.buyer_service.client.TicketClient;
 import com.example.buyer_service.dtos.BuyerDTO;
+import com.example.buyer_service.dtos.BuyerRankingDTO;
 import com.example.buyer_service.dtos.BuyerWithAmount;
 import com.example.buyer_service.dtos.TicketDTO;
 import com.example.buyer_service.exception.BuyerNotFoundException;
@@ -11,7 +12,12 @@ import com.example.buyer_service.repository.BuyerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
 
 @Service
 public class BuyerService {
@@ -59,11 +65,11 @@ public class BuyerService {
         Buyer buyer= findById(buyerId);
         //Traer todos los tickets del ticket-service:
         List<TicketDTO> tickets= ticketClient.getByBuyerId(buyerId);
-
+        //Calcular el total del precio
         Double totalPrice = tickets.stream()
                 .mapToDouble(TicketDTO::getPrice)
                 .sum();
-
+        //Armar el dto
         return BuyerWithAmount.builder()
                 .buyerId(buyerId)
                 .firstName(buyer.getFirstName())
@@ -72,6 +78,26 @@ public class BuyerService {
                 .build();
 
     }
+/// Ranking de buyers por cantidad de tickets
+public List<BuyerRankingDTO> getBuyerRanking() {
+    // Traer todos los buyers
+    List<Buyer> buyers = findAll();
+
+    // Para cada buyer, llamar al ticketClient, contar tickets y construir el dto
+    return buyers.stream()
+            .map(buyer -> {
+                long count = ticketClient.getByBuyerId(buyer.getBuyerId()).size();
+                return BuyerRankingDTO.builder()
+                        .buyerId(buyer.getBuyerId())
+                        .firstName(buyer.getFirstName())
+                        .lastName(buyer.getLastName())
+                        .ticketsCount(count)
+                        .build();
+            })
+            // Ordenar de mayor a menor
+            .sorted(Comparator.comparingLong(BuyerRankingDTO::getTicketsCount).reversed())
+            .toList();
+}
 
 
 

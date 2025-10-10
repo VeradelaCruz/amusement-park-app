@@ -1,12 +1,15 @@
 package com.example.buyer_service.controller;
 
 import com.example.buyer_service.dtos.BuyerDTO;
+import com.example.buyer_service.dtos.BuyerRankingDTO;
 import com.example.buyer_service.dtos.BuyerWithAmount;
 import com.example.buyer_service.models.Buyer;
 import com.example.buyer_service.service.BuyerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/buyer")
@@ -46,6 +49,11 @@ public class BuyerController {
     @GetMapping("/getBuyerTotalSpent/{buyerId}")
     public BuyerWithAmount getBuyerTotalSpent(@PathVariable String buyerId) {
         return buyerService.findBuyerWithTotalAmount(buyerId);
+    }
+
+    @GetMapping("getBuyersRating")
+    public List<BuyerRankingDTO>  getBuyersRating(){
+        return buyerService.getBuyerRanking();
     }
 
 }
