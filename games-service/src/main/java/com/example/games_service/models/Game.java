@@ -1,5 +1,6 @@
 package com.example.games_service.models;
 
+import com.example.games_service.validation.ValidTimeRange;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +11,7 @@ import java.time.LocalTime;
 import java.util.List;
 @Data
 @Document(collection = "games")
+@ValidTimeRange
 public class Game {
 
     @Id
