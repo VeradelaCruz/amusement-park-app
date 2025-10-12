@@ -10,6 +10,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -72,5 +74,23 @@ public class BuyerServiceTest {
 
         verify(buyerRepository, times(1)).save(buyer1);
     }
+
+    @Test
+    void findById_WhenExists_ShouldReturnBuyer(){
+        //Arrange:
+        when(buyerRepository.findById(buyer1.getBuyerId())).thenReturn(Optional.of(buyer1));
+
+        //Act
+        Buyer buyerResult= buyerService.findById(buyer1.getBuyerId());
+
+        //Assert
+        assertThat(buyerResult).isNotNull();
+        assertThat(buyerResult.getBuyerId()).isEqualTo(buyer1.getBuyerId());
+
+        verify(buyerRepository, times(1)).findById(buyer1.getBuyerId());
+
+    }
+
+    
 
 }
