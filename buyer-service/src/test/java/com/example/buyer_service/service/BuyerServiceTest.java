@@ -136,5 +136,19 @@ public class BuyerServiceTest {
         verify(buyerRepository, times(1)).deleteById(buyer1.getBuyerId());
     }
 
+    @Test
+    void removeBuyer_WhenIsNotPresent_ShouldReturnException(){
+        //Arrange
+        String id= "999L";
+        when(buyerRepository.findById(id)).thenReturn(Optional.empty());
+
+        //Act + assert
+        assertThatThrownBy(()-> buyerService.removeBuyer(id))
+                .isInstanceOf(BuyerNotFoundException.class)
+                .hasMessageContaining("Buyer with id: "+ id + " not found.");
+
+        verify(buyerRepository, times(1)).findById(id);
+    }
+
 
 }
