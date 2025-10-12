@@ -12,6 +12,8 @@ import com.example.games_service.repository.GameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -82,4 +84,17 @@ public class GameService {
                 .totalSell(totalPrice)
                 .build();
     }
+
+    //Juegos activos en un horario determinado
+    public List<GameDTO> findGamesByTime(LocalTime time) {
+        return findAll().stream()
+                .filter(game ->
+                        (game.getStartTime().equals(time) || game.getStartTime().isBefore(time)) &&
+                                (game.getEndTime().equals(time) || game.getEndTime().isAfter(time))
+                )
+                .map(gameMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+
 }

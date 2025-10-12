@@ -11,6 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -58,6 +61,31 @@ public class GameController {
         } catch (RuntimeException e) {
             // Si no se encuentra el juego, devolvemos un 404 con el mensaje de error
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<List<GameDTO>> getActiveGames(
+            @RequestParam("time") String timeParam) {
+
+        try {
+            // Convertimos el parámetro String a LocalTime
+            LocalTime time = LocalTime.parse(timeParam);
+
+            // Obtenemos la lista de juegos activos
+            List<GameDTO> games = gameService.findGamesByTime(time);
+
+            // Si la lista está vacía, devolvemos 204 No Content
+            if (games.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+
+            return ResponseEntity.ok(games);
+
+        } catch (DateTimeParseException e) {
+            // Si la hora no tiene el formato correcto (por ejemplo 14:30)
+            return ResponseEntity.badRequest()
+                    .body(Collections.emptyList());
         }
     }
 
