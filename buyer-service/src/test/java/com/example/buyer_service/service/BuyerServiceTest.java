@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -106,6 +107,20 @@ public class BuyerServiceTest {
                 .hasMessageContaining("Buyer with id: "+ id + " not found.");
 
         verify(buyerRepository, times(1)).findById(id);
+    }
+
+    @Test
+    void findAll_ShouldReturnAList(){
+        //Arrange:
+        when(buyerRepository.findAll()).thenReturn(List.of(buyer1, buyer2));
+
+        //Act
+        List<Buyer> buyers= buyerService.findAll();
+
+        //Assert
+        assertThat(buyers).hasSize(2);
+        assertThat(buyers).contains(buyer1, buyer2);
+        verify(buyerRepository, times(1)).findAll();
     }
 
 
