@@ -46,7 +46,7 @@ public class BuyerService {
 
     public void removeBuyer(String buyerId){
         Buyer buyer= findById(buyerId);
-        buyerRepository.delete(buyer);
+        buyerRepository.deleteById(buyer.getBuyerId());
     }
 
     public BuyerDTO changeBuyer(String buyerId, BuyerDTO buyerDTO){

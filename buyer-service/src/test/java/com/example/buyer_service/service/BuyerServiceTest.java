@@ -123,6 +123,18 @@ public class BuyerServiceTest {
         verify(buyerRepository, times(1)).findAll();
     }
 
+    @Test
+    void removeBuyer_WhenIsPresent_ShouldReturnVoid(){
+        //Arrange
+        when(buyerRepository.findById(buyer1.getBuyerId())).thenReturn(Optional.of(buyer1));
+        doNothing().when(buyerRepository).deleteById(buyer1.getBuyerId());
+
+        //Act
+        buyerService.removeBuyer(buyer1.getBuyerId());
+
+        //Assert
+        verify(buyerRepository, times(1)).deleteById(buyer1.getBuyerId());
+    }
 
 
 }
