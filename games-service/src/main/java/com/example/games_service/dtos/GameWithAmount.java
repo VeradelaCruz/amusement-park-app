@@ -1,6 +1,5 @@
 package com.example.games_service.dtos;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,8 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TicketDTO {
-    private String ticketId;
+public class GameWithAmount {
     private String gameId;
-    private Double price;
+    private String gameName;
+    private Double priceGame;
+    private Double totalSell;
 }

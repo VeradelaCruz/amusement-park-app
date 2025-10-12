@@ -1,6 +1,10 @@
 package com.example.games_service.service;
 
+import com.example.games_service.client.TicketClient;
 import com.example.games_service.dtos.GameDTO;
+import com.example.games_service.dtos.GameWithAmount;
+import com.example.games_service.dtos.TicketDTO;
+import com.example.games_service.dtos.TicketWithPrice;
 import com.example.games_service.exception.GameNotFoundException;
 import com.example.games_service.mapper.GameMapper;
 import com.example.games_service.models.Game;
@@ -9,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Service
 public class GameService {
@@ -18,8 +24,12 @@ public class GameService {
     @Autowired
     private GameMapper gameMapper;
 
+    @Autowired
+    private TicketClient ticketClient;
 
-    //CRUD OPERATIONS
+
+
+    //--------CRUD OPERATIONS------------
     public Game createGame(Game game){
         return gameRepository.save(game);
     }
@@ -53,5 +63,23 @@ public class GameService {
     }
 
     //------OTHER OPERATIONS-----
+    //Obtener juego con ingresos totales
+    public GameWithAmount findGameWithTotalSell(String gameId){
+        //Buscamos el juego con el id dado:
+        Game game= findById(gameId);
 
+        //Traemos los tickets del microservicio:
+        Double totalPrice= ticketClient.getAll()
+        //Buscamos los tickets que coinciden con el gameId
+                .stream()
+                .filter(ticketDTO -> ticketDTO.getGameId().equals(gameId))
+                .mapToDouble(TicketDTO::getPrice)
+                .sum();
+        //Retornamos el dto construido:
+        return GameWithAmount.builder()
+                .gameId(gameId)
+                .gameName(game.getGameName())
+                .totalSell(totalPrice)
+                .build();
+    }
 }

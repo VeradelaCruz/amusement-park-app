@@ -1,6 +1,7 @@
 package com.example.games_service.controller;
 
 import com.example.games_service.dtos.GameDTO;
+import com.example.games_service.dtos.GameWithAmount;
 import com.example.games_service.models.Game;
 import com.example.games_service.service.GameService;
 import jakarta.validation.Valid;
@@ -48,5 +49,16 @@ public class GameController {
         return ResponseEntity.ok(updated);
     }
 
+    @GetMapping("/game-totalPrice/{gameId}")
+    public ResponseEntity<GameWithAmount> getGameWithTotalSell(@PathVariable String gameId) {
+        // Usamos try-catch por si el juego no existe o hay error con el microservicio
+        try {
+            GameWithAmount result = gameService.findGameWithTotalSell(gameId);
+            return ResponseEntity.ok(result);
+        } catch (RuntimeException e) {
+            // Si no se encuentra el juego, devolvemos un 404 con el mensaje de error
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
 
 }
