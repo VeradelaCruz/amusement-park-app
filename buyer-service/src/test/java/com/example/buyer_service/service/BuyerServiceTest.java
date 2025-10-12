@@ -1,5 +1,6 @@
 package com.example.buyer_service.service;
 
+import com.example.buyer_service.exception.BuyerNotFoundException;
 import com.example.buyer_service.models.Buyer;
 import com.example.buyer_service.repository.BuyerRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,9 +11,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 /*
@@ -91,6 +94,20 @@ public class BuyerServiceTest {
 
     }
 
-    
+    @Test
+    void findById_WhenIsNotPresent_ShouldReturnException(){
+        //Arrange
+        String id= "999L";
+        when(buyerRepository.findById(id)).thenReturn(Optional.empty());
+
+        // Act & Assert: verificamos que se lanza la excepción
+        assertThatThrownBy(() -> buyerService.findById(id))
+                .isInstanceOf(BuyerNotFoundException.class)
+                .hasMessageContaining("Buyer with id: "+ id + " not found.");
+
+        verify(buyerRepository, times(1)).findById(id);
+    }
+
+
 
 }
