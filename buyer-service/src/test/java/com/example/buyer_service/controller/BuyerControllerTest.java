@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -69,6 +70,18 @@ public class BuyerControllerTest {
                 .andExpect(jsonPath("$.email").value("alice@example.com"));
 
         verify(buyerService).createBuyer(any(Buyer.class));
+    }
+
+    @Test
+    void getById_WhenIdExists_ShouldReturnABuyer() throws Exception {
+        when(buyerService.findById(buyer1.getBuyerId())).thenReturn(buyer1);
+
+        mockMvc.perform(get("/buyer/byId/{buyerId}", "b1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.buyerId").value("b1"));
+
+        verify(buyerService).findById("b1");
     }
 
 
