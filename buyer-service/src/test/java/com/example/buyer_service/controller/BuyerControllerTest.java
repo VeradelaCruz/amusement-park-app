@@ -1,6 +1,8 @@
 package com.example.buyer_service.controller;
 
 
+import com.example.buyer_service.exception.BuyerNotFoundException;
+import com.example.buyer_service.exception.GlobalHandlerException;
 import com.example.buyer_service.models.Buyer;
 import com.example.buyer_service.service.BuyerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -21,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 //Carga solo el contexto web necesario para el controlador indicado (sin levantar toda la app).
 @WebMvcTest(BuyerController.class)
+@Import(GlobalHandlerException.class)
 public class BuyerControllerTest {
 
     @Autowired
@@ -83,6 +87,18 @@ public class BuyerControllerTest {
 
         verify(buyerService).findById("b1");
     }
+
+    @Test
+    void getById_WhenBuyerNotFound_ShouldReturnNotFoundMessage() throws Exception {
+        when(buyerService.findById("x999"))
+                .thenThrow(new BuyerNotFoundException("x999"));
+
+        mockMvc.perform(get("/buyer/byId/{id}", "x999")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Buyer with id: x999 not found."));
+    }
+
 
 
 }
