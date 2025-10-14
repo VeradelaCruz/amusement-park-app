@@ -1,7 +1,9 @@
 package com.example.buyer_service.service;
 
+import com.example.buyer_service.client.TicketClient;
 import com.example.buyer_service.dtos.BuyerDTO;
 import com.example.buyer_service.dtos.BuyerWithAmount;
+import com.example.buyer_service.dtos.TicketDTO;
 import com.example.buyer_service.exception.BuyerNotFoundException;
 import com.example.buyer_service.mapper.BuyerMapper;
 import com.example.buyer_service.models.Buyer;
@@ -14,6 +16,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +40,11 @@ public class BuyerServiceTest {
     @Mock
     public BuyerRepository buyerRepository;
 
-    BuyerMapper buyerMapper = Mappers.getMapper(BuyerMapper.class); // mapper real
+    @Mock
+    private BuyerMapper buyerMapper;
+
+    @Mock
+    private TicketClient ticketClient;
 
     //Crea la clase bajo prueba e inyecta los mocks en ella.
     @InjectMocks
@@ -193,5 +201,42 @@ public class BuyerServiceTest {
         verify(buyerRepository, times(1)).findById("b1");
         verify(buyerRepository, times(1)).save(any(Buyer.class));
         verify(buyerMapper, times(1)).toDto(any(Buyer.class));
+    }
+
+    @Test
+    void findBuyerWithTotalAmount_ShouldReturnADTO() {
+        //Arrange
+        when(buyerRepository.findById(buyer1.getBuyerId())).thenReturn(Optional.of(buyer1));
+
+        //Simular ticketClient:
+        TicketDTO ticketDTO1 = new TicketDTO(
+                "T1",
+                "G1",
+                "b1",
+                LocalDate.of(2025, 10, 1),
+                LocalTime.of(9, 00, 00),
+                10.0
+        );
+        TicketDTO ticketDTO2 = new TicketDTO(
+                "T2",
+                "G2",
+                "b1",
+                LocalDate.of(2025, 10, 1),
+                LocalTime.of(10, 00, 00),
+                10.0
+        );
+
+        when(ticketClient.getByBuyerId(buyer1.getBuyerId())).thenReturn(List.of(ticketDTO1,ticketDTO2));
+
+        //Act
+        BuyerWithAmount buyerWithAmount= buyerService.findBuyerWithTotalAmount(buyer1.getBuyerId());
+
+        //Assert
+        assertThat(buyerWithAmount).isNotNull();
+        assertThat(buyerWithAmount.getTotalAmountSpent()).isEqualTo(20);
+        assertThat(buyerWithAmount.getBuyerId()).isEqualTo("b1");
+
+
+
     }
 }
