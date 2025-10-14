@@ -1,18 +1,20 @@
 package com.example.buyer_service.service;
 
+import com.example.buyer_service.dtos.BuyerDTO;
+import com.example.buyer_service.dtos.BuyerWithAmount;
 import com.example.buyer_service.exception.BuyerNotFoundException;
+import com.example.buyer_service.mapper.BuyerMapper;
 import com.example.buyer_service.models.Buyer;
 import com.example.buyer_service.repository.BuyerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,13 +36,18 @@ public class BuyerServiceTest {
     @Mock
     public BuyerRepository buyerRepository;
 
+    BuyerMapper buyerMapper = Mappers.getMapper(BuyerMapper.class); // mapper real
+
     //Crea la clase bajo prueba e inyecta los mocks en ella.
     @InjectMocks
     private BuyerService buyerService;
 
+
+
     //Arrange:
     private Buyer buyer1;
     private Buyer buyer2;
+    private BuyerDTO buyerDTO;
 
     @BeforeEach
     void setUp() {
@@ -59,6 +66,14 @@ public class BuyerServiceTest {
         buyer2.setEmail("bob@example.com");
         buyer2.setPhone("+34198765432");
         buyer2.setDocumentId("DOC67890");
+
+        buyerDTO = new BuyerDTO();
+        buyerDTO.setFirstName("Alice");
+        buyerDTO.setLastName("Smith");
+        buyerDTO.setEmail("alice12@example.com");
+        buyerDTO.setPhone("+34123456789");
+        buyerDTO.setDocumentId("DOC12345");
+
     }
 
     @Test
@@ -150,5 +165,33 @@ public class BuyerServiceTest {
         verify(buyerRepository, times(1)).findById(id);
     }
 
+    @Test
+    void changeBuyer_ShouldReturnDTO() {
+        // Arrange
+        when(buyerRepository.findById("b1")).thenReturn(Optional.of(buyer1));
+        when(buyerRepository.save(any(Buyer.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
+        // Simulamos mapper: el DTO actualizado que debería devolver
+        BuyerDTO expectedDTO = new BuyerDTO(
+                "Alice",
+                "Smith",
+                "alice12@example.com", // el email actualizado
+                "+34123456789",
+                "DOC12345"
+        );
+        when(buyerMapper.toDto(any(Buyer.class))).thenReturn(expectedDTO);
+
+        // Act
+        BuyerDTO result = buyerService.changeBuyer(buyer1.getBuyerId(), buyerDTO);
+
+        // Assert
+        assertThat(result).isNotNull();
+        assertThat(result.getEmail()).isEqualTo("alice12@example.com");
+        assertThat(result.getFirstName()).isEqualTo("Alice");
+
+        verify(buyerRepository, times(1)).findById("b1");
+        verify(buyerRepository, times(1)).save(any(Buyer.class));
+        verify(buyerMapper, times(1)).toDto(any(Buyer.class));
+    }
 }
