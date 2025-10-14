@@ -2,6 +2,7 @@ package com.example.buyer_service.service;
 
 import com.example.buyer_service.client.TicketClient;
 import com.example.buyer_service.dtos.BuyerDTO;
+import com.example.buyer_service.dtos.BuyerRankingDTO;
 import com.example.buyer_service.dtos.BuyerWithAmount;
 import com.example.buyer_service.dtos.TicketDTO;
 import com.example.buyer_service.exception.BuyerNotFoundException;
@@ -75,12 +76,6 @@ public class BuyerServiceTest {
         buyer2.setPhone("+34198765432");
         buyer2.setDocumentId("DOC67890");
 
-        buyerDTO = new BuyerDTO();
-        buyerDTO.setFirstName("Alice");
-        buyerDTO.setLastName("Smith");
-        buyerDTO.setEmail("alice12@example.com");
-        buyerDTO.setPhone("+34123456789");
-        buyerDTO.setDocumentId("DOC12345");
 
     }
 
@@ -235,8 +230,52 @@ public class BuyerServiceTest {
         assertThat(buyerWithAmount).isNotNull();
         assertThat(buyerWithAmount.getTotalAmountSpent()).isEqualTo(20);
         assertThat(buyerWithAmount.getBuyerId()).isEqualTo("b1");
+    }
+    @Test
+    void getBuyerRanking_ShouldReturnARankingList(){
+     //Arrange
+    when(buyerRepository.findAll()).thenReturn(List.of(buyer1, buyer2));
+        //Simular ticketClient:
+        TicketDTO ticketDTO1 = new TicketDTO(
+                "T1",
+                "G1",
+                "b1",
+                LocalDate.of(2025, 10, 1),
+                LocalTime.of(9, 00, 00),
+                10.0
+        );
+        TicketDTO ticketDTO2 = new TicketDTO(
+                "T2",
+                "G2",
+                "b1",
+                LocalDate.of(2025, 10, 1),
+                LocalTime.of(10, 00, 00),
+                10.0
+        );
+        TicketDTO ticketDTO3 = new TicketDTO(
+                "T3",
+                "G3",
+                "b2",
+                LocalDate.of(2025, 10, 1),
+                LocalTime.of(10, 00, 00),
+                15.0
+        );
 
+        when(ticketClient.getByBuyerId("b1")).thenReturn(List.of(ticketDTO1, ticketDTO2));
+        when(ticketClient.getByBuyerId("b2")).thenReturn(List.of(ticketDTO3));
 
+        //Act
+       List<BuyerRankingDTO> buyerRankingDTO= buyerService.getBuyerRanking();
+
+       //Assert
+        assertThat(buyerRankingDTO).isNotNull();
+        assertThat(buyerRankingDTO.get(0).getTicketsCount()).isEqualTo(2);
+        assertThat(buyerRankingDTO.get(0).getBuyerId()).isEqualTo("b1");
+        assertThat(buyerRankingDTO.get(1).getBuyerId()).isEqualTo("b2");
+        assertThat(buyerRankingDTO.get(0).getTicketsCount())
+                .isGreaterThan(buyerRankingDTO.get(1).getTicketsCount());
 
     }
+
+
 }
