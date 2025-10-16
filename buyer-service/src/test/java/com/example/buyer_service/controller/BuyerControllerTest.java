@@ -2,6 +2,7 @@ package com.example.buyer_service.controller;
 
 
 import com.example.buyer_service.dtos.BuyerDTO;
+import com.example.buyer_service.dtos.BuyerRankingDTO;
 import com.example.buyer_service.dtos.BuyerWithAmount;
 import com.example.buyer_service.exception.BuyerNotFoundException;
 import com.example.buyer_service.exception.GlobalHandlerException;
@@ -19,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.*;
@@ -165,6 +167,34 @@ public class BuyerControllerTest {
                 .andExpect(jsonPath("$.buyerId").value("b1"))
                 .andExpect(jsonPath("$.firstName").value("Alice"))
                 .andExpect(jsonPath("$.totalAmountSpent").value(200.0));
+    }
+
+    @Test
+    void getBuyersRanking_ShouldReturnAListOfBuyers() throws Exception{
+        BuyerRankingDTO buyerRankingDTO1= BuyerRankingDTO.builder()
+                .buyerId("b1")
+                .firstName("Alice")
+                .lastName("Smith")
+                .ticketsCount(2)
+                .build();
+        BuyerRankingDTO buyerRankingDTO2= BuyerRankingDTO.builder()
+                .buyerId("b2")
+                .firstName("Bob")
+                .lastName("Jhonson")
+                .ticketsCount(1)
+                .build();
+
+        when(buyerService.getBuyerRanking()).thenReturn(List.of(buyerRankingDTO1,buyerRankingDTO2));
+
+        mockMvc.perform(get("/buyer/getBuyersRanking")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].firstName").value("Alice"))
+                .andExpect(jsonPath("$[1].firstName").value("Bob"))
+                .andExpect(jsonPath("$[0].ticketsCount").value(2))
+                .andExpect(jsonPath("$[1].ticketsCount").value(1));
+
     }
 
 
