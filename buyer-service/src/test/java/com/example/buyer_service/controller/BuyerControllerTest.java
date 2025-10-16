@@ -1,6 +1,7 @@
 package com.example.buyer_service.controller;
 
 
+import com.example.buyer_service.dtos.BuyerDTO;
 import com.example.buyer_service.exception.BuyerNotFoundException;
 import com.example.buyer_service.exception.GlobalHandlerException;
 import com.example.buyer_service.models.Buyer;
@@ -60,7 +61,7 @@ public class BuyerControllerTest {
     }
 
     @Test
-    //En tests unitarios, rara vez queremos capturar la excepción manualmente;
+        //En tests unitarios, rara vez queremos capturar la excepción manualmente;
         //simplemente declaramos
         // throws Exception y dejamos que JUnit se encargue de marcarlo como error si ocurre.
     void addBuyer_ShouldReturnCreatedBuyer() throws Exception {
@@ -82,7 +83,7 @@ public class BuyerControllerTest {
         when(buyerService.findById(buyer1.getBuyerId())).thenReturn(buyer1);
 
         mockMvc.perform(get("/buyer/byId/{buyerId}", "b1")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.buyerId").value("b1"));
 
@@ -101,24 +102,47 @@ public class BuyerControllerTest {
     }
 
     @Test
-    void getAll_ShouldReturnAListOfBuyers() throws Exception{
+    void getAll_ShouldReturnAListOfBuyers() throws Exception {
         when(buyerService.findAll()).thenReturn(List.of(buyer1, buyer2));
 
 
         mockMvc.perform(get("/buyer/all")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2));
     }
 
     @Test
-    void deleteBuyer_ShouldReturnVoid() throws Exception{
+    void deleteBuyer_ShouldReturnVoid() throws Exception {
         doNothing().when(buyerService).removeBuyer(buyer1.getBuyerId());
 
         mockMvc.perform(delete("/buyer/delete/{buyerId}", buyer1.getBuyerId())
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Buyer removed successfully"));    }
+                .andExpect(content().string("Buyer removed successfully"));
+    }
+
+    @Test
+    void updateBuyer_ShouldReturnADTO() throws Exception {
+        // Arrange
+        BuyerDTO expectedDTO = new BuyerDTO(
+                "Alice",
+                "Smith",
+                "alice12@example.com", // el email actualizado
+                "+34123456789",
+                "DOC12345"
+        );
+
+        when(buyerService.changeBuyer(buyer1.getBuyerId(), expectedDTO)).thenReturn(expectedDTO);
+
+        // Act + Assert
+        mockMvc.perform(put("/buyer/update/{buyerId}", buyer1.getBuyerId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(expectedDTO))) // ← agregamos el cuerpo
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("alice12@example.com"))
+                .andExpect(jsonPath("$.firstName").value("Alice"));
+    }
 
 
 
