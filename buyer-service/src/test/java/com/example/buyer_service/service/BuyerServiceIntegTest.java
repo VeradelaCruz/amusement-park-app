@@ -1,6 +1,7 @@
 package com.example.buyer_service.service;
 
 import com.example.buyer_service.client.TicketClient;
+import com.example.buyer_service.exception.BuyerNotFoundException;
 import com.example.buyer_service.models.Buyer;
 import com.example.buyer_service.repository.BuyerRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @ActiveProfiles("test") // Opcional: para usar application-test.properties
@@ -88,6 +90,16 @@ public class BuyerServiceIntegTest {
         assertThat(buyer).isNotNull();
         assertThat(buyer.getBuyerId()).isEqualTo("b1");
         assertThat(buyer.getFirstName()).isEqualTo("Alice");
+    }
+
+    @Test
+    void findById_WhenDoesNotExists_ShouldReturnBuyer(){
+        // Arrange: no insertamos nada en la DB para el id "99L"
+
+        // Act & Assert
+        assertThatThrownBy(() -> buyerService.findById("99L"))
+                .isInstanceOf(BuyerNotFoundException.class)
+                .hasMessageContaining("Buyer with id: 99L not found");
     }
 
 
