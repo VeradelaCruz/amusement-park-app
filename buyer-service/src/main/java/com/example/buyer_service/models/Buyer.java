@@ -32,4 +32,7 @@ public class Buyer {
 
     @Size(max = 20, message = "Document ID must be at most 20 characters")
     private String documentId;
+
+    public Buyer(String b1, String alice, String smith, String mail, String s, String doc12345) {
+    }
 }
