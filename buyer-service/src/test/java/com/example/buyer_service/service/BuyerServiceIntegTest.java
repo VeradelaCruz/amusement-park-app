@@ -76,9 +76,18 @@ public class BuyerServiceIntegTest {
         //Ya no se usa when porque se levanta todo el contexto,
         // no hay mocks porque no simula ningun comportamiento, todo es real
         Buyer buyer= buyerService.createBuyer(buyer1);
-        
+
         assertThat(buyer).isNotNull();
         assertThat(buyer.getBuyerId()).isEqualTo("b1");
+    }
+
+    @Test
+    void findById_WhenExists_ShouldReturnBuyer(){
+        Buyer buyer= buyerService.findById(buyer1.getBuyerId());
+
+        assertThat(buyer).isNotNull();
+        assertThat(buyer.getBuyerId()).isEqualTo("b1");
+        assertThat(buyer.getFirstName()).isEqualTo("Alice");
     }
 
 
