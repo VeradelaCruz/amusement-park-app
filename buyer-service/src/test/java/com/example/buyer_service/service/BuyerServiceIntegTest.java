@@ -5,17 +5,21 @@ import com.example.buyer_service.models.Buyer;
 import com.example.buyer_service.repository.BuyerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @SpringBootTest
 @ActiveProfiles("test") // Opcional: para usar application-test.properties
-@Transactional // Hace rollback después de cada test
+@AutoConfigureDataMongo
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BuyerServiceIntegTest {
 
     @Autowired
@@ -43,10 +47,38 @@ public class BuyerServiceIntegTest {
     void setUp() {
         buyerRepository.deleteAll(); // Limpiamos la tabla
 
-        buyer1 = new Buyer("b1", "Alice", "Smith", "alice@example.com", "+34123456789", "DOC12345");
-        buyer2 = new Buyer("b2", "Bob", "Johnson", "bob@example.com", "+34198765432", "DOC67890");
+            // Limpiar DB antes de correr tests
+            buyerRepository.deleteAll();
+
+            // Crear buyers con ID fija
+            buyer1 = new Buyer();
+            buyer1.setBuyerId("b1");
+            buyer1.setFirstName("Alice");
+            buyer1.setLastName("Smith");
+            buyer1.setEmail("alice@example.com");
+            buyer1.setPhone("+34123456789");
+            buyer1.setDocumentId("DOC12345");
+
+            buyer2 = new Buyer();
+            buyer2.setBuyerId("b2");
+            buyer2.setFirstName("Bob");
+            buyer2.setLastName("Johnson");
+            buyer2.setEmail("bob@example.com");
+            buyer2.setPhone("+34198765432");
+            buyer2.setDocumentId("DOC67890");
 
         buyerRepository.saveAll(List.of(buyer1, buyer2));
+    }
+
+
+    @Test
+    void createBuyer_WhenValidInput_ShouldReturnBuyer() {
+        //Ya no se usa when porque se levanta todo el contexto,
+        // no hay mocks porque no simula ningun comportamiento, todo es real
+        Buyer buyer= buyerService.createBuyer(buyer1);
+        
+        assertThat(buyer).isNotNull();
+        assertThat(buyer.getBuyerId()).isEqualTo("b1");
     }
 
 

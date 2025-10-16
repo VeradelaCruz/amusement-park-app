@@ -1,0 +1,5 @@
+spring:
+  data:
+    mongodb:
+      port: 0   # Mongo embebido asigna un puerto dinámico
+      database: buyer-testdb

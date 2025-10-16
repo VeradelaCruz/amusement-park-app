@@ -117,6 +117,19 @@
         </dependency>
 
 
+        <!-- Para MongoDB en memoria (solo test) -->
+        <!--RECORDAR PONER SIEMPRE LA VERSION O PUEDE CAUSAR PROBLEMAS CON LOS MODELOS -->
+        <dependency>
+            <groupId>de.flapdoodle.embed</groupId>
+            <artifactId>de.flapdoodle.embed.mongo</artifactId>
+            <version>4.7.2</version>
+            <scope>test</scope>
+        </dependency>
+
+
+
+
+
 
 
     </dependencies>

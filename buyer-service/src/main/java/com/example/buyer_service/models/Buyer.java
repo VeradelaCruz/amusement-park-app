@@ -35,4 +35,8 @@ public class Buyer {
 
     public Buyer(String b1, String alice, String smith, String mail, String s, String doc12345) {
     }
+
+    public Buyer() {
+
+    }
 }
