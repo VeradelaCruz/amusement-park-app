@@ -2,6 +2,7 @@ package com.example.buyer_service.controller;
 
 
 import com.example.buyer_service.dtos.BuyerDTO;
+import com.example.buyer_service.dtos.BuyerWithAmount;
 import com.example.buyer_service.exception.BuyerNotFoundException;
 import com.example.buyer_service.exception.GlobalHandlerException;
 import com.example.buyer_service.models.Buyer;
@@ -143,6 +144,29 @@ public class BuyerControllerTest {
                 .andExpect(jsonPath("$.email").value("alice12@example.com"))
                 .andExpect(jsonPath("$.firstName").value("Alice"));
     }
+
+    @Test
+    void getBuyerTotalSpent_ShouldReturnBuyerWithTotalAmount() throws Exception {
+        // Arrange: creamos el objeto que el servicio debería devolver
+        BuyerWithAmount responseDTO = BuyerWithAmount.builder()
+                .buyerId("b1")
+                .firstName("Alice")
+                .lastName("Smith")
+                .totalAmountSpent(200.0)
+                .build();
+
+        // Simulamos el comportamiento del servicio
+        when(buyerService.findBuyerWithTotalAmount("b1")).thenReturn(responseDTO);
+
+        // Act + Assert
+        mockMvc.perform(get("/buyer/getBuyerTotalSpent/{buyerId}", "b1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.buyerId").value("b1"))
+                .andExpect(jsonPath("$.firstName").value("Alice"))
+                .andExpect(jsonPath("$.totalAmountSpent").value(200.0));
+    }
+
 
 
 
