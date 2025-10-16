@@ -15,11 +15,12 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 //Carga solo el contexto web necesario para el controlador indicado (sin levantar toda la app).
@@ -98,6 +99,26 @@ public class BuyerControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Buyer with id: x999 not found."));
     }
+
+    @Test
+    void getAll_ShouldReturnAListOfBuyers() throws Exception{
+        when(buyerService.findAll()).thenReturn(List.of(buyer1, buyer2));
+
+
+        mockMvc.perform(get("/buyer/all")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2));
+    }
+
+    @Test
+    void deleteBuyer_ShouldReturnVoid() throws Exception{
+        doNothing().when(buyerService).removeBuyer(buyer1.getBuyerId());
+
+        mockMvc.perform(delete("/buyer/delete/{buyerId}", buyer1.getBuyerId())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Buyer removed successfully"));    }
 
 
 
