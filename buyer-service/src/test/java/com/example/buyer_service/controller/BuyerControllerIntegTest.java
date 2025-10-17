@@ -14,10 +14,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.Mockito.doNothing;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 //Levanta toda la lógica completa y su conexión real
 @SpringBootTest
@@ -103,5 +102,12 @@ public class BuyerControllerIntegTest {
                 .andExpect(jsonPath("$.length()").value(2));
     }
 
+    @Test
+    void deleteBuyer_ShouldReturnVoid() throws Exception {
+        mockMvc.perform(delete("/buyer/delete/{buyerId}", buyer1.getBuyerId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Buyer removed successfully"));
+    }
 }
 
