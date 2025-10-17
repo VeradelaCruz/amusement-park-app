@@ -1,6 +1,7 @@
 package com.example.buyer_service.service;
 
 import com.example.buyer_service.client.TicketClient;
+import com.example.buyer_service.dtos.BuyerDTO;
 import com.example.buyer_service.exception.BuyerNotFoundException;
 import com.example.buyer_service.models.Buyer;
 import com.example.buyer_service.repository.BuyerRepository;
@@ -135,6 +136,26 @@ public class BuyerServiceIntegTest {
         assertThatThrownBy(()->buyerService.removeBuyer("99L"))
                 .isInstanceOf(BuyerNotFoundException.class)
                 .hasMessageContaining("Buyer with id: 99L not found.");
+    }
+
+    @Test
+    void changeBuyer_ShouldReturnDTO(){
+        //Arrange
+        BuyerDTO expectedDTO = new BuyerDTO(
+                "Alice",
+                "Smith",
+                "alice12@example.com", // el email actualizado
+                "+34123456789",
+                "DOC12345"
+        );
+
+        //Act
+        BuyerDTO updatedBuyer= buyerService.changeBuyer(buyer1.getBuyerId(), expectedDTO);
+
+        //Assert
+        assertThat(updatedBuyer).isNotNull();
+        assertThat(updatedBuyer.getEmail()).isEqualTo("alice12@example.com");
+
     }
 
 }
