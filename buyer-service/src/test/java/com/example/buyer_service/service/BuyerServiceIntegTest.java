@@ -2,6 +2,7 @@ package com.example.buyer_service.service;
 
 import com.example.buyer_service.client.TicketClient;
 import com.example.buyer_service.dtos.BuyerDTO;
+import com.example.buyer_service.dtos.BuyerRankingDTO;
 import com.example.buyer_service.dtos.BuyerWithAmount;
 import com.example.buyer_service.dtos.TicketDTO;
 import com.example.buyer_service.exception.BuyerNotFoundException;
@@ -196,6 +197,48 @@ public class BuyerServiceIntegTest {
         assertThat(buyer.getBuyerId()).isEqualTo("b1");
         assertThat(buyer.getTotalAmountSpent()).isEqualTo(20);
 
+    }
+
+    @Test
+    void getBuyerRanking_ShouldReturnARankingList(){
+        //Simular ticketClient:
+        TicketDTO ticketDTO1 = new TicketDTO(
+                "T1",
+                "G1",
+                "b1",
+                LocalDate.of(2025, 10, 1),
+                LocalTime.of(9, 00, 00),
+                10.0
+        );
+        TicketDTO ticketDTO2 = new TicketDTO(
+                "T2",
+                "G2",
+                "b1",
+                LocalDate.of(2025, 10, 1),
+                LocalTime.of(10, 00, 00),
+                10.0
+        );
+        TicketDTO ticketDTO3 = new TicketDTO(
+                "T3",
+                "G3",
+                "b2",
+                LocalDate.of(2025, 10, 1),
+                LocalTime.of(10, 00, 00),
+                15.0
+        );
+
+        when(ticketClient.getByBuyerId(buyer1.getBuyerId())).thenReturn(List.of(ticketDTO1, ticketDTO2));
+        when(ticketClient.getByBuyerId(buyer2.getBuyerId())).thenReturn(List.of(ticketDTO3));
+
+        //Act
+        List<BuyerRankingDTO> list= buyerService.getBuyerRanking();
+
+        //Assert
+        assertThat(list).isNotEmpty();
+        assertThat(list.get(0).getBuyerId()).isEqualTo("b1");
+        assertThat(list.get(0).getTicketsCount()).isEqualTo(2);
+        assertThat(list.get(1).getBuyerId()).isEqualTo("b2");
+        assertThat(list.get(1).getTicketsCount()).isEqualTo(1);
     }
 
 }
