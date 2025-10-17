@@ -1,6 +1,9 @@
 package com.example.buyer_service.controller;
 
+import com.example.buyer_service.client.TicketClient;
 import com.example.buyer_service.dtos.BuyerDTO;
+import com.example.buyer_service.dtos.BuyerWithAmount;
+import com.example.buyer_service.dtos.TicketDTO;
 import com.example.buyer_service.models.Buyer;
 import com.example.buyer_service.repository.BuyerRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,13 +12,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -31,6 +37,9 @@ public class BuyerControllerIntegTest {
 
     @Autowired
     private BuyerRepository buyerRepository;
+
+    @MockBean
+    private TicketClient ticketClient;
 
     private Buyer buyer1;
     private Buyer buyer2;
@@ -127,6 +136,38 @@ public class BuyerControllerIntegTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("alice12@example.com"))
                 .andExpect(jsonPath("$.firstName").value("Alice"));
+    }
+
+    @Test
+    void getBuyerTotalSpent_ShouldReturnBuyerWithTotalAmount() throws Exception{
+        //Simular ticketClient:
+        TicketDTO ticketDTO1 = new TicketDTO(
+                "T1",
+                "G1",
+                "b1",
+                LocalDate.of(2025, 10, 1),
+                LocalTime.of(9, 00, 00),
+                10.0
+        );
+        TicketDTO ticketDTO2 = new TicketDTO(
+                "T2",
+                "G2",
+                "b1",
+                LocalDate.of(2025, 10, 1),
+                LocalTime.of(10, 00, 00),
+                10.0
+        );
+
+        when(ticketClient.getByBuyerId(buyer1.getBuyerId()))
+                .thenReturn(List.of(ticketDTO1,ticketDTO2));
+
+        // Act + Assert
+        mockMvc.perform(get("/buyer/getBuyerTotalSpent/{buyerId}", "b1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.buyerId").value("b1"))
+                .andExpect(jsonPath("$.firstName").value("Alice"))
+                .andExpect(jsonPath("$.totalAmountSpent").value(20.0));
     }
 }
 
