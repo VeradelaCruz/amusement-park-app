@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -76,5 +77,13 @@ public class BuyerControllerIntegTest {
                 .andExpect(jsonPath("$.buyerId").value("b1"))
                 .andExpect(jsonPath("$.firstName").value("Alice"))
                 .andExpect(jsonPath("$.email").value("alice@example.com"));
+    }
+
+    @Test
+    void getById_WhenIdExists_ShouldReturnABuyer() throws Exception{
+        mockMvc.perform(get("/buyer/byId/{buyerId}", "b1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.buyerId").value("b1"));
     }
 }
