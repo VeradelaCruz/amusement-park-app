@@ -121,5 +121,14 @@ public class BuyerServiceIntegTest {
         assertThat(list.get(1).getBuyerId()).isEqualTo("b2");
     }
 
+    @Test
+    void removeBuyer_WhenIsPresent_ShouldReturnVoid(){
+        buyerService.removeBuyer(buyer1.getBuyerId());
+
+        // Assert: verificar que ya no está en la BD
+        boolean exists = buyerRepository.findById(buyer1.getBuyerId()).isPresent();
+        assertThat(exists).isFalse();
+    }
+    
 
 }
