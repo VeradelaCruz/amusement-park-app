@@ -2,6 +2,8 @@ package com.example.buyer_service.service;
 
 import com.example.buyer_service.client.TicketClient;
 import com.example.buyer_service.dtos.BuyerDTO;
+import com.example.buyer_service.dtos.BuyerWithAmount;
+import com.example.buyer_service.dtos.TicketDTO;
 import com.example.buyer_service.exception.BuyerNotFoundException;
 import com.example.buyer_service.models.Buyer;
 import com.example.buyer_service.repository.BuyerRepository;
@@ -14,10 +16,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ActiveProfiles("test") // Opcional: para usar application-test.properties
@@ -45,6 +50,7 @@ public class BuyerServiceIntegTest {
 
     private Buyer buyer1;
     private Buyer buyer2;
+
 
     @BeforeEach
     void setUp() {
@@ -155,6 +161,40 @@ public class BuyerServiceIntegTest {
         //Assert
         assertThat(updatedBuyer).isNotNull();
         assertThat(updatedBuyer.getEmail()).isEqualTo("alice12@example.com");
+
+    }
+
+    @Test
+    void findBuyerWithTotalAmount_ShouldReturnADTO(){
+        //Simular MockBean el llamado al otro microservicio (tickets)
+        //Simular ticketClient:
+        TicketDTO ticketDTO1 = new TicketDTO(
+                "T1",
+                "G1",
+                "b1",
+                LocalDate.of(2025, 10, 1),
+                LocalTime.of(9, 00, 00),
+                10.0
+        );
+        TicketDTO ticketDTO2 = new TicketDTO(
+                "T2",
+                "G2",
+                "b1",
+                LocalDate.of(2025, 10, 1),
+                LocalTime.of(10, 00, 00),
+                10.0
+        );
+
+        when(ticketClient.getByBuyerId(buyer1.getBuyerId()))
+                .thenReturn(List.of(ticketDTO1,ticketDTO2));
+
+        //Act
+        BuyerWithAmount buyer= buyerService.findBuyerWithTotalAmount(buyer1.getBuyerId());
+
+        //Assert
+        assertThat(buyer).isNotNull();
+        assertThat(buyer.getBuyerId()).isEqualTo("b1");
+        assertThat(buyer.getTotalAmountSpent()).isEqualTo(20);
 
     }
 
