@@ -86,4 +86,12 @@ public class BuyerControllerIntegTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.buyerId").value("b1"));
     }
+
+    @Test
+    void getById_WhenBuyerNotFound_ShouldReturnNotFoundMessage() throws Exception {
+        mockMvc.perform(get("/buyer/byId/{id}", "x999")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Buyer with id: x999 not found."));
+    }
 }
