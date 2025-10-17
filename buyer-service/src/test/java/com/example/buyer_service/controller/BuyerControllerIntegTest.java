@@ -94,4 +94,14 @@ public class BuyerControllerIntegTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Buyer with id: x999 not found."));
     }
+
+    @Test
+    void getAll_ShouldReturnAListOfBuyers() throws Exception{
+        mockMvc.perform(get("/buyer/all")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2));
+    }
+
 }
+
