@@ -1,5 +1,6 @@
 package com.example.buyer_service.controller;
 
+import com.example.buyer_service.dtos.BuyerDTO;
 import com.example.buyer_service.models.Buyer;
 import com.example.buyer_service.repository.BuyerRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -108,6 +109,24 @@ public class BuyerControllerIntegTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Buyer removed successfully"));
+    }
+
+    @Test
+    void updateBuyer_ShouldReturnADTO() throws Exception {
+        BuyerDTO expectedDTO = new BuyerDTO(
+                "Alice",
+                "Smith",
+                "alice12@example.com", // el email actualizado
+                "+34123456789",
+                "DOC12345"
+        );
+
+        mockMvc.perform(put("/buyer/update/{buyerId}", buyer1.getBuyerId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(expectedDTO))) // ← agregamos el cuerpo
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("alice12@example.com"))
+                .andExpect(jsonPath("$.firstName").value("Alice"));
     }
 }
 
