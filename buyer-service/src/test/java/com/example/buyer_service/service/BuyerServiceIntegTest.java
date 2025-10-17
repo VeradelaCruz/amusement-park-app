@@ -129,6 +129,12 @@ public class BuyerServiceIntegTest {
         boolean exists = buyerRepository.findById(buyer1.getBuyerId()).isPresent();
         assertThat(exists).isFalse();
     }
-    
+
+    @Test
+    void removeBuyer_WhenIsNotPresent_ShouldReturnVoid(){
+        assertThatThrownBy(()->buyerService.removeBuyer("99L"))
+                .isInstanceOf(BuyerNotFoundException.class)
+                .hasMessageContaining("Buyer with id: 99L not found.");
+    }
 
 }
