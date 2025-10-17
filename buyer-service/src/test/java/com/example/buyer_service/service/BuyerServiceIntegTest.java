@@ -97,11 +97,29 @@ public class BuyerServiceIntegTest {
         // Arrange: no insertamos nada en la DB para el id "99L"
 
         // Act & Assert
+        //método de AssertJ que se usa cuando quieres probar que una acción lanza una excepción.
+        //Lo que va dentro del paréntesis es un lambda:
         assertThatThrownBy(() -> buyerService.findById("99L"))
+                //Este método verifica el tipo de la excepción que fue lanzada.
+                //En este caso, estamos diciendo:
+                // “Espero que la excepción que se lance sea exactamente de tipo BuyerNotFoundException”.
                 .isInstanceOf(BuyerNotFoundException.class)
+                //Este método verifica el mensaje de la excepción.
+                //.hasMessageContaining(...) permite chequear parte del mensaje,
+                // no necesita ser exacto.
                 .hasMessageContaining("Buyer with id: 99L not found");
     }
 
+    @Test
+    void findAll_ShouldReturnAList(){
+
+        //Act
+        List<Buyer> list= buyerService.findAll();
+
+        assertThat(list).isNotEmpty();
+        assertThat(list.get(0).getBuyerId()).isEqualTo("b1");
+        assertThat(list.get(1).getBuyerId()).isEqualTo("b2");
+    }
 
 
 }
