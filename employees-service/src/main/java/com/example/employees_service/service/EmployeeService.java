@@ -8,6 +8,9 @@ import com.example.employees_service.mapper.EmployeeMapper;
 import com.example.employees_service.models.Employee;
 import com.example.employees_service.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -29,24 +32,31 @@ public class EmployeeService {
     private EmployeeMapper employeeMapper;
 
     //-----------CRUD OPERATIONS------------
+    //Esto asegura que cualquier caché dependiente de la lista
+    // o datos relacionados se limpie cuando creás/eliminás empleados.
+    @CacheEvict(value = {"employees", "employeesWithGames", "employeesWithTickets"},
+            allEntries = true)
     public Employee createEmployee(Employee employee){
         return employeeRepository.save(employee);
     }
-
+    @Cacheable(value = "employees", key = "#id")
     public Employee findById(String id){
         return employeeRepository.findById(id)
                 .orElseThrow(()-> new EmployeeNotFoundException(id));
     }
 
+    //Esto evita que findAll devuelva datos obsoletos.
+    @CacheEvict(value = "employees", allEntries = true)
     public List<Employee> findAll(){
         return employeeRepository.findAll();
     }
-
+    @CacheEvict(value = {"employees", "employeesWithGames", "employeesWithTickets"},
+            allEntries = true)
     public void removeEmployee(String id){
         Employee employee= findById(id);
         employeeRepository.deleteById(employee.getId());
     }
-
+    @CachePut(value = "employees", key = "#id")
     public EmployeeDTO updateEmployee(String id, EmployeeDTO employeeDTO) {
         // 1️⃣ Buscar el empleado existente en la base
         Employee existing = findById(id);
@@ -64,6 +74,8 @@ public class EmployeeService {
 
     //------ OTHER OPERATIONS----------
     // 🔹 Obtener empleados con su juego asignado
+    //En caso de que actualizan juegos o asignaciones de empleados.
+    @CacheEvict(value = "employeesWithGames", allEntries = true)
     public List<EmployeeWithGameDTO> findEmployeesWithGames() {
         return employeeRepository.findAll().stream()
 
@@ -87,6 +99,7 @@ public class EmployeeService {
                 .collect(Collectors.toList());
     }
     //🔹Obtener empleados y contar cuántos tickets vendieron
+    @Cacheable(value = "employeesWithTickets")
     public List<EmployeeWithTicketsDTO> findEmployeesWithTickets(){
         // Traemos todos los tickets de todos los juegos desde ticketService
         List<TicketDTO> allTickets = ticketClient.getAll(); // suponer que hay un endpoint global
