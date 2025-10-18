@@ -10,6 +10,9 @@ import com.example.buyer_service.mapper.BuyerMapper;
 import com.example.buyer_service.models.Buyer;
 import com.example.buyer_service.repository.BuyerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -28,24 +31,30 @@ public class BuyerService {
     private TicketClient ticketClient;
 
     //----CRUD OPERATIONS------
+    //El propósito del caché es evitar consultas repetidas a
+    // la base de datos para los mismos datos.
+    //Pero createBuyer() inserta un nuevo registro, no lo lee.
     public Buyer createBuyer(Buyer buyer) {
         return buyerRepository.save(buyer);
     }
-
+    @Cacheable(value = "buyers", key = "#buyerId")
     public Buyer findById(String buyerId){
         return buyerRepository.findById(buyerId)
                 .orElseThrow(()-> new BuyerNotFoundException(buyerId));
     }
-
+    //El value es el nombre de la caché (como el nombre de una colección o tabla).
+    //Todas las operaciones (@Cacheable, @CachePut, @CacheEvict) que manipulen los mismos
+    // datos deben usar el mismo value, para que trabajen sobre el mismo conjunto de elementos.
+    @Cacheable(value = "buyers", key = "#buyerId")
     public List<Buyer> findAll(){
         return buyerRepository.findAll();
     }
-
+    @CacheEvict(value = "buyers", key = "#buyerId")
     public void removeBuyer(String buyerId){
         Buyer buyer= findById(buyerId);
         buyerRepository.deleteById(buyer.getBuyerId());
     }
-
+    @CachePut(value = "buyers", key = "#buyerId")
     public BuyerDTO changeBuyer(String buyerId, BuyerDTO buyerDTO){
         Buyer buyer= findById(buyerId);
 
@@ -57,6 +66,7 @@ public class BuyerService {
 
     //------ OTHER OPERATIONS ---------
 /// Calcular el gasto total de un comprador
+    @Cacheable(value = "buyerTotalAmount", key = "#buyerId")
     public BuyerWithAmount findBuyerWithTotalAmount(String buyerId){
         //Traer el buyer y sus datos:
         Buyer buyer= findById(buyerId);
@@ -76,6 +86,7 @@ public class BuyerService {
 
     }
 /// Ranking de buyers por cantidad de tickets
+@Cacheable(value = "buyerRanking")
 public List<BuyerRankingDTO> getBuyerRanking() {
     // Traer todos los buyers
     List<Buyer> buyers = findAll();
