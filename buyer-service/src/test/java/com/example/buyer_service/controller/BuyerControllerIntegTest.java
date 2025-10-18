@@ -2,6 +2,7 @@ package com.example.buyer_service.controller;
 
 import com.example.buyer_service.client.TicketClient;
 import com.example.buyer_service.dtos.BuyerDTO;
+import com.example.buyer_service.dtos.BuyerRankingDTO;
 import com.example.buyer_service.dtos.BuyerWithAmount;
 import com.example.buyer_service.dtos.TicketDTO;
 import com.example.buyer_service.models.Buyer;
@@ -21,6 +22,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -168,6 +171,26 @@ public class BuyerControllerIntegTest {
                 .andExpect(jsonPath("$.buyerId").value("b1"))
                 .andExpect(jsonPath("$.firstName").value("Alice"))
                 .andExpect(jsonPath("$.totalAmountSpent").value(20.0));
+    }
+
+    @Test
+    void getBuyersRanking_ShouldReturnAListOfBuyers() throws Exception {
+
+        TicketDTO ticket1 = new TicketDTO("T1", "G1", "b1", LocalDate.now(), LocalTime.now(), 10.0);
+        TicketDTO ticket2 = new TicketDTO("T2", "G2", "b1", LocalDate.now(), LocalTime.now(), 15.0);
+        TicketDTO ticket3 = new TicketDTO("T3", "G3", "b2", LocalDate.now(), LocalTime.now(), 20.0);
+
+        when(ticketClient.getByBuyerId("b1")).thenReturn(List.of(ticket1, ticket2));
+        when(ticketClient.getByBuyerId("b2")).thenReturn(List.of(ticket3));
+
+
+        mockMvc.perform(get("/buyer/getBuyersRanking"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].firstName").value("Alice"))
+                .andExpect(jsonPath("$[1].firstName").value("Bob"))
+                .andExpect(jsonPath("$[0].ticketsCount").value(2))
+                .andExpect(jsonPath("$[1].ticketsCount").value(1));
     }
 }
 
