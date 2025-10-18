@@ -10,6 +10,9 @@ import com.example.games_service.mapper.GameMapper;
 import com.example.games_service.models.Game;
 import com.example.games_service.repository.GameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -32,24 +35,31 @@ public class GameService {
 
 
     //--------CRUD OPERATIONS------------
+    @CacheEvict(value = {"games", "gamesWithTotalSale","gamesWithTIme"}, allEntries = true)
     public Game createGame(Game game){
         return gameRepository.save(game);
     }
 
+    @Cacheable(value = "games", key = "#gameId")
     public Game findById(String gameId){
         return gameRepository.findById(gameId)
                 .orElseThrow(()-> new GameNotFoundException(gameId));
     }
 
+    @Cacheable(value = "games")
     public List<Game> findAll(){
         return gameRepository.findAll();
     }
 
+    @CacheEvict(value = {"games", "gamesWithTotalSale","gamesWithTIme"}, allEntries = true)
     public void removeById(String gameId){
         Game game= findById(gameId);
         gameRepository.deleteById(game.getGameId());
     }
 
+    //changeGame() actualiza el juego individual (@CachePut) y limpia las cachés derivadas.
+    @CachePut(value="games", key="#gameId")
+    @CacheEvict(value={"gamesWithTotalSell","gamesByTime"}, allEntries=true)
     public GameDTO changeGame(String gameId, GameDTO gameDTO){
         //Busca el que se va a actualizar:
         Game existing= findById(gameId);
@@ -66,6 +76,9 @@ public class GameService {
 
     //------OTHER OPERATIONS-----
     //Obtener juego con ingresos totales
+
+    //si se venden nuevos tickets o cambian precios:
+    @CacheEvict(value="gamesWithTotalSell", allEntries=true)
     public GameWithAmount findGameWithTotalSell(String gameId){
         //Buscamos el juego con el id dado:
         Game game= findById(gameId);
@@ -86,6 +99,12 @@ public class GameService {
     }
 
     //Juegos activos en un horario determinado
+
+    //Si cambian horarios de juegos o se agregan/eliminan juegos, la caché puede quedar obsoleta.
+    //
+    //Ideal: limpiar la caché con @CacheEvict(value="gamesByTime",
+    // allEntries=true) en métodos que alteran horarios o crean/eliminan juegos.
+    @CacheEvict(value="gamesByTime", allEntries=true)
     public List<GameDTO> findGamesByTime(LocalTime time) {
         return findAll().stream()
                 .filter(game ->
