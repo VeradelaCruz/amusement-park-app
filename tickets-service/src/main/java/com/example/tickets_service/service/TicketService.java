@@ -9,6 +9,9 @@ import com.example.tickets_service.mapper.TicketMapper;
 import com.example.tickets_service.models.Ticket;
 import com.example.tickets_service.repository.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
@@ -33,11 +36,12 @@ public class TicketService {
 
     //-----CRUD OPERATIONS ------
 
+    @Cacheable(value = "tickets", key = "#ticketId")
     public Ticket findById(String ticketId){
         return ticketRepository.findById(ticketId)
                 .orElseThrow(()-> new TicketNotFoundException(ticketId));
     }
-
+    @Cacheable(value = "tickets")
     public List<Ticket> findAll(){
         return ticketRepository.findAll();
     }
@@ -45,6 +49,9 @@ public class TicketService {
     //Verificar que una entrada va a ser valida para
     // la venta teniendo en cuenta el horario del juego
     //Crea un ticket en la venta misma
+    @CacheEvict(value = {"tickets", "ticketAmount","gameTicketAmount",
+            "countAllTickets","countByMonthAndYear", "topBuyerWithTicket",
+            "topGameWithTicket", "averageGame"}, allEntries= true)
     public TicketDTO sellTicket(String gameId, String buyerId) {
         GameDTO gameDTO = gameClient.getById(gameId);
 
@@ -79,12 +86,20 @@ public class TicketService {
                 (now.equals(gameDTO.getEndTime())   || now.isBefore(gameDTO.getEndTime()));
     }
 
-
+    @CacheEvict( value = {"tickets", "ticketAmount","gameTicketAmount",
+            "countAllTickets","countByMonthAndYear", "topBuyerWithTicket",
+            "topGameWithTicket", "averageGame"}, allEntries= true)
     public void removeTicket(String ticketId){
         Ticket ticket= findById(ticketId);
         ticketRepository.deleteById(ticket.getTicketId());
     }
 
+    @CachePut(value="tickets", key="#ticketId")
+    @CacheEvict(value = {
+            "ticketAmount","gameTicketAmount",
+            "countAllTickets","countByMonthAndYear",
+            "topBuyerWithTicket", "topGameWithTicket", "averageGame"
+    }, allEntries = true)
     public TicketDTO changeTicket(String ticketId, TicketDTO ticketDTO){
         Ticket existing = findById(ticketId);
         ticketMapper.updateFromDTO(ticketDTO, existing);
@@ -95,6 +110,7 @@ public class TicketService {
 
     //----------OTHER OPERATIONS-------
     //Cantidad de entradas vendidas en todos los juegos en una fecha
+    @Cacheable(value = "ticketAmount")
     public List<TicketCountDTO> ticketAmount(LocalDate date) {
         // 1️⃣ Filtrar solo tickets de la fecha ingresada
         List<Ticket> tickets = findAll().stream()
@@ -115,6 +131,7 @@ public class TicketService {
     }
 
     //Cantidad de entradas vendidas para un determinado juego, en una fecha particular.
+    @Cacheable(value = "gameTicketAmount")
     public TicketCountDTO gameTicketAmount(String gameId, LocalDate date) {
                // 🔹 Contar tickets que caen dentro del rango
         long totalAmount = findAll().stream()
@@ -131,6 +148,7 @@ public class TicketService {
 
 
     //Sumatoria total de los montos de ventas en un determinado día.
+    @Cacheable(value = "countAllTickets")
     public SalesTotalDTO countAllTickets(LocalDate date) {
         double totalAmount = findAll().stream()
                 .filter(t -> t.getDate().equals(date))
@@ -143,6 +161,7 @@ public class TicketService {
 
 
     //Sumatoria total de los montos de ventas en un determinado mes y año.
+    @Cacheable(value = "countByMonthAndYear")
     public SalesTotalMonthYearDTO countByMonthAndYear(int month, int year){
         try {
             YearMonth ym = YearMonth.of(year, month);
@@ -161,6 +180,7 @@ public class TicketService {
 
 
     //Comprador maximo
+    @Cacheable(value = "topBuyerWithTicket")
     public BuyerWithTicket getTopBuyerWithTicket() {
         // 1️⃣ Agrupar todos los tickets por buyerId
         Map<String, List<Ticket>> ticketsByBuyer =findAll().stream()
@@ -199,6 +219,7 @@ public class TicketService {
     //Juego con la mayor cantidad de entradas vendidas hasta el día en que
     // se lleve a cabo la consulta
     // y cuya suma sea la maxima en caso de igualdad de cantidad.
+    @Cacheable(value = "topGameWithTicket")
     public GameAmountTickets getTopGameWithTicket() {
         // 1️⃣ Agrupar todos los tickets por gameId
         Map<String, List<Ticket>> gamesByTickets = findAll().stream()
@@ -228,6 +249,7 @@ public class TicketService {
     }
 
     //Promedio de precio de tickets vendidos por juego
+    @Cacheable(value = "averageGame")
     public List<GameWithAverageDTO> getAverageGame(){
         //Agrupamos gameId y calculamos el precio promedio
         Map<String, Double> gamesWithPrices= findAll().stream()
@@ -251,6 +273,7 @@ public class TicketService {
     }
 
     //Encontrar tickets por buyerId
+    @Cacheable(value = "ticketsByBuyer",key = "#buyerId")
     public List<Ticket> findByBuyerId(String buyerId){
         return ticketRepository.findByBuyerId(buyerId);
     }
