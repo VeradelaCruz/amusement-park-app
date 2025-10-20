@@ -126,11 +126,13 @@
             <scope>test</scope>
         </dependency>
 
-        <!--SpringBoot Cache sin Redis-->
+
+        <!-- Spring Boot Cache -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-cache</artifactId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
+
 
 
 

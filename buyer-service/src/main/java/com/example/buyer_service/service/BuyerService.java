@@ -39,6 +39,7 @@ public class BuyerService {
     }
     @Cacheable(value = "buyers", key = "#buyerId")
     public Buyer findById(String buyerId){
+        System.out.println(">>> Llamando a la base de datos para Buyer " + buyerId);
         return buyerRepository.findById(buyerId)
                 .orElseThrow(()-> new BuyerNotFoundException(buyerId));
     }
