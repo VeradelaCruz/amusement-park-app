@@ -17,6 +17,7 @@ public class BuyerController {
     @Autowired
     private BuyerService buyerService;
 
+
     @PostMapping("/add")
     public ResponseEntity<?> addBuyer(@RequestBody Buyer buyer){
         return ResponseEntity.ok(buyerService.createBuyer(buyer));

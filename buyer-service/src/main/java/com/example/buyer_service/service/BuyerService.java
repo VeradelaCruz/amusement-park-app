@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -30,6 +31,7 @@ public class BuyerService {
     @Autowired
     private TicketClient ticketClient;
 
+
     //----CRUD OPERATIONS------
     //El propósito del caché es evitar consultas repetidas a
     // la base de datos para los mismos datos.
@@ -37,19 +39,25 @@ public class BuyerService {
     public Buyer createBuyer(Buyer buyer) {
         return buyerRepository.save(buyer);
     }
-    @Cacheable(value = "buyers", key = "#buyerId")
+
+
+    @Cacheable(value = "buyers", key = "#buyerId", sync = true)
     public Buyer findById(String buyerId){
         System.out.println(">>> Llamando a la base de datos para Buyer " + buyerId);
         return buyerRepository.findById(buyerId)
                 .orElseThrow(()-> new BuyerNotFoundException(buyerId));
     }
+
+
     //El value es el nombre de la caché (como el nombre de una colección o tabla).
     //Todas las operaciones (@Cacheable, @CachePut, @CacheEvict) que manipulen los mismos
     // datos deben usar el mismo value, para que trabajen sobre el mismo conjunto de elementos.
-    @Cacheable(value = "buyers", key = "#buyerId")
+    @Cacheable(value = "buyers")
     public List<Buyer> findAll(){
         return buyerRepository.findAll();
     }
+
+
     @CacheEvict(value = "buyers", key = "#buyerId")
     public void removeBuyer(String buyerId){
         Buyer buyer= findById(buyerId);
