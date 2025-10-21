@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
@@ -29,26 +30,26 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 // sino su representación en bytes, y para eso necesita que el objeto sea “serializable”.
 public class RedisConfig {
 
+    /**
+     * Bean que configura el administrador de caché de Redis.
+     * Este se encarga de gestionar el almacenamiento y recuperación de los datos cacheados
+     * cuando se usan las anotaciones @Cacheable, @CachePut o @CacheEvict.
+     */
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
+        // Define la configuración base del caché
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+                // Especifica que los valores de la caché se serializan en formato JSON
+                // para poder guardar objetos complejos de Java en Redis
                 .serializeValuesWith(
                         RedisSerializationContext.SerializationPair.fromSerializer(
                                 new GenericJackson2JsonRedisSerializer()
                         )
                 );
 
+        // Crea el administrador de caché usando la conexión y configuración definidas arriba
         return RedisCacheManager.builder(redisConnectionFactory)
-                .cacheDefaults(config)
-                .build();
-    }
-
-    @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
-        RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(factory);
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-        return template;
+                .cacheDefaults(config) // Aplica la configuración por defecto a todos los cachés
+                .build();              // Construye el objeto final RedisCacheManager
     }
 }
