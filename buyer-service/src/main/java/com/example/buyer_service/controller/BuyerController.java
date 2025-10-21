@@ -5,6 +5,7 @@ import com.example.buyer_service.dtos.BuyerRankingDTO;
 import com.example.buyer_service.dtos.BuyerWithAmount;
 import com.example.buyer_service.models.Buyer;
 import com.example.buyer_service.service.BuyerService;
+import com.example.buyer_service.service.kafka.BuyerProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,9 @@ import java.util.List;
 public class BuyerController {
     @Autowired
     private BuyerService buyerService;
+
+    @Autowired
+    private BuyerProducer buyerProducer;
 
 
     @PostMapping("/add")
@@ -55,6 +59,11 @@ public class BuyerController {
     @GetMapping("/getBuyersRanking")
     public List<BuyerRankingDTO>  getBuyersRanking(){
         return buyerService.getBuyerRanking();
+    }
+
+    @PostMapping("/send")
+    public void sendBuyer(@RequestParam String buyerId) {
+        buyerProducer.sendBuyerEvent(buyerId);
     }
 
 }

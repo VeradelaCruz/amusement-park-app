@@ -9,6 +9,8 @@ import com.example.buyer_service.exception.BuyerNotFoundException;
 import com.example.buyer_service.mapper.BuyerMapper;
 import com.example.buyer_service.models.Buyer;
 import com.example.buyer_service.repository.BuyerRepository;
+import com.example.buyer_service.service.kafka.BuyerProducer;
+import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -31,14 +33,20 @@ public class BuyerService {
     @Autowired
     private TicketClient ticketClient;
 
+    @Autowired
+    private BuyerProducer buyerProducer;
 
     //----CRUD OPERATIONS------
     //El propósito del caché es evitar consultas repetidas a
     // la base de datos para los mismos datos.
     //Pero createBuyer() inserta un nuevo registro, no lo lee.
     public Buyer createBuyer(Buyer buyer) {
-        return buyerRepository.save(buyer);
+        Buyer savedBuyer= buyerRepository.save(buyer);
+        //Enviar evento a Kafka
+        buyerProducer.sendBuyerEvent(savedBuyer.getBuyerId());
+        return savedBuyer;
     }
+
 
 
     @Cacheable(value = "buyers", key = "#buyerId", sync = true)
