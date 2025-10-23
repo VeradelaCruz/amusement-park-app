@@ -16,6 +16,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -35,6 +36,9 @@ public class BuyerService {
 
     @Autowired
     private BuyerProducer buyerProducer;
+
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
 
     //----CRUD OPERATIONS------
     //El propósito del caché es evitar consultas repetidas a
@@ -71,13 +75,16 @@ public class BuyerService {
         Buyer buyer= findById(buyerId);
         buyerRepository.deleteById(buyer.getBuyerId());
     }
+
+
     @CachePut(value = "buyers", key = "#buyerId")
     public BuyerDTO changeBuyer(String buyerId, BuyerDTO buyerDTO){
         Buyer buyer= findById(buyerId);
 
         buyerMapper.updateFromDTO(buyerDTO, buyer);
         Buyer saved= buyerRepository.save(buyer);
-
+        // Usamos el producer en lugar de kafkaTemplate directamente
+        buyerProducer.sendBuyerUpdateEvent(saved.getBuyerId(), saved.getFirstName());
         return buyerMapper.toDto(saved);
     }
 

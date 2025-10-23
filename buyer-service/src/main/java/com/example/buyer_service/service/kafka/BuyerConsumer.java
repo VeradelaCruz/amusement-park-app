@@ -4,6 +4,9 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 @Service
+//Es básicamente el receptor de los mensajes que envía BuyerProducer.
+//Mientras que BuyerProducer produce mensajes y los manda a un topic en Kafka,
+//BuyerConsumer escucha ese topic y hace algo con los mensajes que llegan.
 public class BuyerConsumer {
 
     @KafkaListener(topics = "buyers", groupId = "buyer-service-group")
