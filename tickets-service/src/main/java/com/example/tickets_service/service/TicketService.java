@@ -8,10 +8,12 @@ import com.example.tickets_service.exception.TicketNotFoundException;
 import com.example.tickets_service.mapper.TicketMapper;
 import com.example.tickets_service.models.Ticket;
 import com.example.tickets_service.repository.TicketRepository;
+import com.example.tickets_service.service.kafka.TicketProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
@@ -33,6 +35,13 @@ public class TicketService {
 
     @Autowired
     private BuyerClient buyerClient;
+
+    @Autowired
+    private TicketProducer ticketProducer;
+
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
+
 
     //-----CRUD OPERATIONS ------
 
@@ -73,6 +82,9 @@ public class TicketService {
             ticket.setPrice(gameDTO.getPriceGame());
 
             Ticket saved = ticketRepository.save(ticket);
+
+            //Evento enviado a kafka
+            ticketProducer.sendTicketPurchased(saved);
 
             // 🔹 Mapear ticket + juego
             return ticketMapper.toDTO(saved, gameDTO);
