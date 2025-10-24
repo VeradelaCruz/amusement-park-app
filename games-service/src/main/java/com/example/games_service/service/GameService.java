@@ -99,9 +99,7 @@ public class GameService {
     }
 
     //Juegos activos en un horario determinado
-
     //Si cambian horarios de juegos o se agregan/eliminan juegos, la caché puede quedar obsoleta.
-    //
     //Ideal: limpiar la caché con @CacheEvict(value="gamesByTime",
     // allEntries=true) en métodos que alteran horarios o crean/eliminan juegos.
     @CacheEvict(value="gamesByTime", allEntries=true)
