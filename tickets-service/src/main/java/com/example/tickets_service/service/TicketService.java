@@ -87,7 +87,7 @@ public class TicketService {
             ticketProducer.sendTicketPurchased(saved);
 
             // 🔹 Mapear ticket + juego
-            return ticketMapper.toDTO(saved, gameDTO);
+            return ticketMapper. toDTO(saved, gameDTO);
         } else {
             throw new GameNotAvailableException(gameDTO.getNameGame());
         }
