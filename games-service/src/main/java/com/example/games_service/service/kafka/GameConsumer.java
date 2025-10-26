@@ -15,6 +15,8 @@ public class GameConsumer {
     }
 
     @KafkaListener(topics = "tickets", groupId = "games-service-group")
+    //representa el cuerpo del evento que Kafka envió por el topic,
+    // es decir, el contenido del mensaje publicado por tu producto
     public void onTicketPurchased(String message) {
         System.out.println("🎮 Received even in games-service: " + message);
 
