@@ -1,0 +1,14 @@
+{
+  "name": "mongo-sink-employee",
+  "config": {
+    "connector.class": "com.mongodb.kafka.connect.MongoSinkConnector",
+    "tasks.max": "1",
+    "topics": "employee-topic",
+    "connection.uri": "mongodb://host.docker.internal:27017/amusement_park",
+    "database": "amusement_park",
+    "collection": "employee_events",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": false
+  }
+}
