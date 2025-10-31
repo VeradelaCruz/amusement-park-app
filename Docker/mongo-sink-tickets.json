@@ -1,0 +1,14 @@
+{
+  "name": "mongo-sink-tickets",
+  "config": {
+    "connector.class": "com.mongodb.kafka.connect.MongoSinkConnector",
+    "tasks.max": "1",
+    "topics": "tickets-topic",
+    "connection.uri": "mongodb://host.docker.internal:27017/amusement_park",
+    "database": "amusement_park",
+    "collection": "tickets_events",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": false
+  }
+}
