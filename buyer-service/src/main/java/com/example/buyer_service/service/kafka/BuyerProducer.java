@@ -26,7 +26,7 @@ public class BuyerProducer {
             String json = objectMapper.writeValueAsString(payload);
 
             // Enviar el JSON al topic
-            kafkaTemplate.send("buyer-topic", json);
+            kafkaTemplate.send("buyer-topic-json", json);
 
             System.out.println("Evento enviado: " + json);
         } catch (Exception e) {
@@ -36,7 +36,7 @@ public class BuyerProducer {
 
     // Para actualizar un buyer
     public void sendBuyerUpdateEvent(String buyerId, String firstName) {
-        kafkaTemplate.send("buyer-topic", "Buyer updated: " + buyerId + " - " + firstName);
+        kafkaTemplate.send("buyer-topic-json", "Buyer updated: " + buyerId + " - " + firstName);
         System.out.println("Evento enviado: Buyer updated " + buyerId);
     }
 }

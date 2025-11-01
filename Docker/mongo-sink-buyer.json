@@ -3,7 +3,7 @@
   "config": {
     "connector.class": "com.mongodb.kafka.connect.MongoSinkConnector",
     "tasks.max": "1",
-    "topics": "buyer-topic",
+    "topics": "buyer-topic-json",
     "connection.uri": "mongodb://host.docker.internal:27017/amusement_park",
     "database": "amusement_park",
     "collection": "buyer_events",

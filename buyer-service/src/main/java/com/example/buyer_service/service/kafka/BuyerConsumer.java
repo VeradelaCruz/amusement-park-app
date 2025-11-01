@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 //BuyerConsumer escucha ese topic y hace algo con los mensajes que llegan.
 public class BuyerConsumer {
 
-    @KafkaListener(topics = "buyer-topic", groupId = "buyer-service-group")
+    @KafkaListener(topics = "buyer-topic-json", groupId = "buyer-service-group")
     public void listenBuyerEvent(String message) {
         System.out.println("Evento recibido en buyer-service: " + message);
     }
