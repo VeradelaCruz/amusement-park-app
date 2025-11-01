@@ -1,7 +1,10 @@
 package com.example.buyer_service.service.kafka;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 @Service
 //Es el servicio que vos usás en tu código.
@@ -16,8 +19,19 @@ public class BuyerProducer {
     }
 
     public void sendBuyerEvent(String buyerId) {
-        kafkaTemplate.send("buyer-topic", buyerId);
-        System.out.println("Evento enviado: " + buyerId);
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            // Crear un objeto JSON con el buyerId
+            Map<String, String> payload = Map.of("buyerId", buyerId);
+            String json = objectMapper.writeValueAsString(payload);
+
+            // Enviar el JSON al topic
+            kafkaTemplate.send("buyer-topic", json);
+
+            System.out.println("Evento enviado: " + json);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     // Para actualizar un buyer
