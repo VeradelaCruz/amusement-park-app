@@ -16,13 +16,13 @@ public class BuyerProducer {
     }
 
     public void sendBuyerEvent(String buyerId) {
-        kafkaTemplate.send("buyers", buyerId);
+        kafkaTemplate.send("buyer-topic", buyerId);
         System.out.println("Evento enviado: " + buyerId);
     }
 
     // Para actualizar un buyer
     public void sendBuyerUpdateEvent(String buyerId, String firstName) {
-        kafkaTemplate.send("buyers", "Buyer updated: " + buyerId + " - " + firstName);
+        kafkaTemplate.send("buyer-topic", "Buyer updated: " + buyerId + " - " + firstName);
         System.out.println("Evento enviado: Buyer updated " + buyerId);
     }
 }
