@@ -20,12 +20,10 @@ public class BuyerProducer {
 
     public void sendBuyerEvent(String buyerId) {
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            // Crear un objeto JSON con el buyerId
             Map<String, String> payload = Map.of("buyerId", buyerId);
-            String json = objectMapper.writeValueAsString(payload);
+            // Convertir el Map a JSON string
+            String json = new ObjectMapper().writeValueAsString(payload);
 
-            // Enviar el JSON al topic
             kafkaTemplate.send("buyer-topic-json", json);
 
             System.out.println("Evento enviado: " + json);
@@ -33,6 +31,8 @@ public class BuyerProducer {
             e.printStackTrace();
         }
     }
+
+
 
     // Para actualizar un buyer
     public void sendBuyerUpdateEvent(String buyerId, String firstName) {
