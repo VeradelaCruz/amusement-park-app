@@ -12,24 +12,16 @@ import java.util.Map;
 //Este sí envía los mensajes reales a un topic
 public class BuyerProducer {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    public BuyerProducer(KafkaTemplate<String, String> kafkaTemplate) {
+    public BuyerProducer(KafkaTemplate<String, Object> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 
     public void sendBuyerEvent(String buyerId) {
-        try {
-            Map<String, String> payload = Map.of("buyerId", buyerId);
-            // Convertir el Map a JSON string
-            String json = new ObjectMapper().writeValueAsString(payload);
-
-            kafkaTemplate.send("buyer-topic-json", json);
-
-            System.out.println("Evento enviado: " + json);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Map<String, String> payload = Map.of("buyerId", buyerId);
+        kafkaTemplate.send("buyer-topic-json", payload);
+        System.out.println("Evento enviado: " + payload);
     }
 
 
