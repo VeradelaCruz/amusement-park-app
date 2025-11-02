@@ -38,7 +38,7 @@ public class BuyerService {
     private BuyerProducer buyerProducer;
 
     @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
+    private KafkaTemplate<String, Object> kafkaTemplate;
 
     //----CRUD OPERATIONS------
     //El propósito del caché es evitar consultas repetidas a
