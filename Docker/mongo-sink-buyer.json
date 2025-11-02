@@ -1,17 +1,15 @@
 {
-  "name": "mongo-sink-buyer",
-  "config": {
-    "connector.class": "com.mongodb.kafka.connect.MongoSinkConnector",
-    "tasks.max": "1",
-    "topics": "buyer-topic-json",
-    "connection.uri": "mongodb://host.docker.internal:27017/amusement_park",
-    "database": "amusement_park",
-    "collection": "buyer_events",
-    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
-    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-    "value.converter.schemas.enable": false,
-    "errors.tolerance": "all",
-    "errors.log.enable": "true",
-    "errors.log.include.messages": "true"
-  }
+  "connector.class": "com.mongodb.kafka.connect.MongoSinkConnector",
+  "tasks.max": "1",
+  "topics": "buyer-topic-json",
+  "connection.uri": "mongodb://host.docker.internal:27017/amusement_park",
+  "database": "amusement_park",
+  "collection": "buyer_events",
+  "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+  "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+  "value.converter.schemas.enable": "false",
+  "errors.tolerance": "all",
+  "errors.log.enable": "true",
+  "errors.log.include.messages": "true"
 }
+
